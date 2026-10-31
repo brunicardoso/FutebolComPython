@@ -6,13 +6,17 @@ Uso: pixi run construir-site
 
 from __future__ import annotations
 
+import importlib.util
 import json
-import sys
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(RAIZ))
-from vestiario import config  # noqa: E402
+
+# Carrega só o config.py (sem o pacote inteiro, que precisa de pandas),
+# para o site poder ser montado com um Python simples.
+_spec = importlib.util.spec_from_file_location("config", RAIZ / "vestiario" / "config.py")
+config = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(config)
 
 
 def link_colab(arquivo: str) -> str:
