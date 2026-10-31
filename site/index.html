@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Futebol com Python</title>
+<meta name="description" content="Aprenda Python, matemática e lógica com futebol. Notebooks para abrir no Google Colab.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E⚽%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --fundo: #f4f8f1;
+    --superficie: #ffffff;
+    --texto: #1c2a1e;
+    --suave: #5b6b5e;
+    --borda: #dfe7da;
+    --gramado: #2e7d32;
+    --gramado-claro: #e3f1e1;
+    --ouro: #f9a825;
+    --sombra: 0 2px 10px rgba(20, 50, 20, .08);
+    --nivel1: #2e7d32; --nivel2: #1565c0; --nivel3: #6a1b9a; --nivel4: #c62828;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --fundo: #0f1611; --superficie: #18221a; --texto: #e8f0e6; --suave: #a3b3a5;
+      --borda: #2b3a2e; --gramado: #66bb6a; --gramado-claro: #1d3020;
+      --sombra: 0 2px 10px rgba(0, 0, 0, .4);
+      --nivel1: #66bb6a; --nivel2: #64b5f6; --nivel3: #ce93d8; --nivel4: #ef9a9a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --fundo: #0f1611; --superficie: #18221a; --texto: #e8f0e6; --suave: #a3b3a5;
+    --borda: #2b3a2e; --gramado: #66bb6a; --gramado-claro: #1d3020;
+    --sombra: 0 2px 10px rgba(0, 0, 0, .4);
+    --nivel1: #66bb6a; --nivel2: #64b5f6; --nivel3: #ce93d8; --nivel4: #ef9a9a;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--fundo); color: var(--texto);
+    font: 17px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  .conteiner { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+  a { color: var(--gramado); }
+  h1, h2, h3 { line-height: 1.2; margin: 0 0 .4em; }
+  h2 { font-size: 1.6rem; display: flex; align-items: center; gap: .5rem; }
+  section { padding: 40px 0 8px; }
+  .icone { width: 1em; height: 1em; flex: none; }
+
+  /* Topo */
+  .topo {
+    background:
+      repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 60px, transparent 60px 120px),
+      linear-gradient(160deg, #1b5e20, #2e7d32 55%, #43a047);
+    color: #fff; padding: 48px 0 56px; position: relative; overflow: hidden;
+  }
+  .topo::after {
+    content: ""; position: absolute; width: 260px; height: 260px; border: 4px solid rgba(255,255,255,.18);
+    border-radius: 50%; right: -60px; top: 50%; transform: translateY(-50%);
+  }
+  .topo .conteiner { position: relative; z-index: 1; display: flex; gap: 28px; align-items: center; flex-wrap: wrap; }
+  .topo-texto { flex: 1 1 320px; }
+  .topo h1 { font-size: clamp(2rem, 6vw, 3.2rem); }
+  .topo p { font-size: 1.15rem; max-width: 36em; margin: 0 0 1.2em; opacity: .95; }
+  .bola-grande { width: 140px; height: 140px; flex: none; animation: quica 2.4s ease-in-out infinite; }
+  @keyframes quica { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-14px) rotate(25deg); } }
+  @media (prefers-reduced-motion: reduce) { .bola-grande { animation: none; } html { scroll-behavior: auto; } }
+  .botoes { display: flex; gap: 12px; flex-wrap: wrap; }
+  .botao {
+    display: inline-flex; align-items: center; justify-content: center; gap: .5em;
+    min-height: 48px; padding: 0 20px; border-radius: 999px; font-weight: 700;
+    text-decoration: none; border: 0; font-size: 1rem; cursor: pointer;
+  }
+  .botao-ouro { background: var(--ouro); color: #1c1c1c; }
+  .botao-claro { background: rgba(255,255,255,.16); color: #fff; border: 2px solid rgba(255,255,255,.5); }
+  .botao:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px solid var(--ouro); outline-offset: 2px; }
+
+  /* Passos */
+  .passos { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+  .passo {
+    background: var(--superficie); border: 1px solid var(--borda); border-radius: 18px; padding: 20px;
+    box-shadow: var(--sombra); position: relative;
+  }
+  .passo .numero {
+    position: absolute; top: 14px; right: 16px; font-weight: 800; font-size: 2rem; color: var(--borda);
+  }
+  .passo .icone { width: 44px; height: 44px; color: var(--gramado); margin-bottom: 8px; }
+  .passo h3 { font-size: 1.15rem; }
+  .passo p { margin: 0; color: var(--suave); }
+
+  /* Aura */
+  .aura-caixa {
+    background: var(--superficie); border: 1px solid var(--borda); border-radius: 18px; padding: 20px;
+    box-shadow: var(--sombra);
+  }
+  .escada { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 18px; }
+  .degrau {
+    flex: 1 1 110px; border-radius: 14px; padding: 12px; text-align: center; color: #fff; font-weight: 700;
+  }
+  .degrau small { display: block; font-weight: 500; opacity: .9; }
+  .regras { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+  .regras li { background: var(--gramado-claro); border-radius: 12px; padding: 10px 14px; }
+
+  /* Níveis e cartões */
+  .nivel { margin-top: 28px; }
+  .nivel-cabeca { border-left: 8px solid var(--cor); padding: 4px 0 4px 14px; margin-bottom: 16px; }
+  .nivel-cabeca h3 { font-size: 1.35rem; color: var(--cor); }
+  .nivel-cabeca p { margin: 0; color: var(--suave); }
+  .cartoes { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+  .cartao {
+    background: var(--superficie); border: 1px solid var(--borda); border-top: 6px solid var(--cor);
+    border-radius: 18px; padding: 18px; display: flex; flex-direction: column; gap: 10px;
+    box-shadow: var(--sombra);
+  }
+  .cartao.em-breve { opacity: .72; }
+  .cartao-topo { display: flex; align-items: center; gap: 12px; }
+  .cartao-icone {
+    width: 56px; height: 56px; border-radius: 16px; display: grid; place-items: center; flex: none;
+    background: color-mix(in srgb, var(--cor) 14%, transparent); color: var(--cor);
+  }
+  .cartao-icone .icone { width: 34px; height: 34px; }
+  .cartao-num { font-size: .85rem; font-weight: 700; color: var(--cor); letter-spacing: .04em; }
+  .cartao h4 { margin: 0; font-size: 1.12rem; line-height: 1.25; }
+  .pergunta { margin: 0; font-style: italic; color: var(--suave); }
+  .etiquetas { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+  .etiquetas li { font-size: .85rem; padding: 3px 10px; border-radius: 999px; background: var(--gramado-claro); }
+  .etiquetas li.mat { background: color-mix(in srgb, var(--ouro) 22%, transparent); }
+  .cartao-rodape { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .tempo { font-size: .9rem; color: var(--suave); }
+  .botao-colab { background: var(--cor); color: #fff; }
+  :root[data-theme="dark"] .botao-colab { color: #111; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .botao-colab { color: #111; } }
+  .botao-trancado { background: var(--borda); color: var(--suave); cursor: default; }
+
+  /* Jogos */
+  .jogos { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .jogo { background: var(--superficie); border: 1px solid var(--borda); border-radius: 16px; padding: 16px; text-align: center; box-shadow: var(--sombra); }
+  .jogo .emoji { font-size: 2.4rem; }
+  .jogo small { display: block; color: var(--suave); }
+
+  /* Pais */
+  details {
+    background: var(--superficie); border: 1px solid var(--borda); border-radius: 14px; margin-bottom: 10px;
+    box-shadow: var(--sombra);
+  }
+  summary { cursor: pointer; padding: 14px 16px; font-weight: 700; min-height: 48px; list-style-position: inside; }
+  details > div { padding: 0 16px 14px; }
+  details p:first-child { margin-top: 0; }
+
+  footer { margin-top: 48px; padding: 28px 0 40px; border-top: 1px solid var(--borda); color: var(--suave); font-size: .92rem; }
+  .tema { position: absolute; top: 14px; right: 16px; z-index: 2; }
+  .tema button { min-height: 44px; min-width: 44px; border-radius: 999px; border: 2px solid rgba(255,255,255,.5); background: rgba(0,0,0,.15); color: #fff; font-size: 1.2rem; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<!-- Ícones originais (desenhados à mão, sem imagens de terceiros) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-bola" viewBox="0 0 48 48"><circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="3"/><path d="M24 14l8 6-3 10H19l-3-10z" fill="currentColor"/><path d="M24 14V5M32 20l9-3M29 30l5 8M19 30l-5 8M16 20l-9-3" stroke="currentColor" stroke-width="2.5"/></symbol>
+    <symbol id="i-calculadora" viewBox="0 0 48 48"><rect x="10" y="5" width="28" height="38" rx="4" fill="none" stroke="currentColor" stroke-width="3"/><rect x="15" y="10" width="18" height="8" rx="1.5" fill="currentColor"/><g fill="currentColor"><circle cx="17" cy="25" r="2.4"/><circle cx="24" cy="25" r="2.4"/><circle cx="31" cy="25" r="2.4"/><circle cx="17" cy="32" r="2.4"/><circle cx="24" cy="32" r="2.4"/><circle cx="31" cy="32" r="2.4"/><circle cx="17" cy="38.5" r="2.4"/><circle cx="24" cy="38.5" r="2.4"/><circle cx="31" cy="38.5" r="2.4"/></g></symbol>
+    <symbol id="i-lupa" viewBox="0 0 48 48"><circle cx="20" cy="20" r="13" fill="none" stroke="currentColor" stroke-width="3.5"/><path d="M30 30l12 12" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="M20 13l2.1 4.3 4.7.7-3.4 3.3.8 4.7-4.2-2.2-4.2 2.2.8-4.7-3.4-3.3 4.7-.7z" fill="currentColor"/></symbol>
+    <symbol id="i-prancheta" viewBox="0 0 48 48"><rect x="8" y="7" width="32" height="37" rx="4" fill="none" stroke="currentColor" stroke-width="3"/><rect x="17" y="3" width="14" height="8" rx="2" fill="currentColor"/><g fill="currentColor"><circle cx="24" cy="38" r="2.5"/><circle cx="15" cy="31" r="2.5"/><circle cx="21" cy="31" r="2.5"/><circle cx="27" cy="31" r="2.5"/><circle cx="33" cy="31" r="2.5"/><circle cx="17" cy="23" r="2.5"/><circle cx="24" cy="23" r="2.5"/><circle cx="31" cy="23" r="2.5"/><circle cx="17" cy="15" r="2.5"/><circle cx="24" cy="15" r="2.5"/><circle cx="31" cy="15" r="2.5"/></g></symbol>
+    <symbol id="i-moeda" viewBox="0 0 48 48"><ellipse cx="24" cy="24" rx="18" ry="18" fill="none" stroke="currentColor" stroke-width="3"/><ellipse cx="24" cy="24" rx="12" ry="12" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3"/><text x="24" y="30" text-anchor="middle" font-size="16" font-weight="800" fill="currentColor" font-family="system-ui">½</text></symbol>
+    <symbol id="i-var" viewBox="0 0 48 48"><rect x="5" y="9" width="38" height="25" rx="3" fill="none" stroke="currentColor" stroke-width="3"/><path d="M18 41h12M24 34v7" stroke="currentColor" stroke-width="3"/><path d="M15 21l6 6 12-12" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-tabela" viewBox="0 0 48 48"><rect x="6" y="7" width="36" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="3"/><path d="M6 16h36M6 25h36M6 33h36M16 7v34" stroke="currentColor" stroke-width="2"/><path d="M20 12h6M20 21h14M20 29h10M20 37h8" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></symbol>
+    <symbol id="i-cronometro" viewBox="0 0 48 48"><circle cx="24" cy="27" r="16" fill="none" stroke="currentColor" stroke-width="3"/><path d="M20 5h8M24 5v6M24 27l7-7M37 12l3-3" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><text x="24" y="40" text-anchor="middle" font-size="9" font-weight="800" fill="currentColor" font-family="system-ui">90</text></symbol>
+    <symbol id="i-grafico" viewBox="0 0 48 48"><path d="M6 42h36" stroke="currentColor" stroke-width="3"/><rect x="9" y="26" width="7" height="14" rx="1.5" fill="currentColor"/><rect x="20" y="18" width="7" height="22" rx="1.5" fill="currentColor"/><rect x="31" y="6" width="7" height="34" rx="1.5" fill="currentColor"/><path d="M6 22h36" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3"/></symbol>
+    <symbol id="i-campo" viewBox="0 0 48 48"><rect x="4" y="9" width="40" height="30" rx="2" fill="none" stroke="currentColor" stroke-width="3"/><path d="M24 9v30" stroke="currentColor" stroke-width="2"/><circle cx="24" cy="24" r="6" fill="none" stroke="currentColor" stroke-width="2"/><rect x="4" y="17" width="7" height="14" fill="none" stroke="currentColor" stroke-width="2"/><rect x="37" y="17" width="7" height="14" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+    <symbol id="i-angulo" viewBox="0 0 48 48"><path d="M6 40h36M6 40L38 10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M20 40a14 14 0 0 0-4-10" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="38" cy="10" r="4" fill="currentColor"/></symbol>
+    <symbol id="i-dado" viewBox="0 0 48 48"><rect x="7" y="7" width="34" height="34" rx="7" fill="none" stroke="currentColor" stroke-width="3"/><g fill="currentColor"><circle cx="16" cy="16" r="3"/><circle cx="32" cy="16" r="3"/><circle cx="24" cy="24" r="3"/><circle cx="16" cy="32" r="3"/><circle cx="32" cy="32" r="3"/></g></symbol>
+    <symbol id="i-figurinha" viewBox="0 0 48 48"><rect x="12" y="5" width="26" height="34" rx="3" fill="none" stroke="currentColor" stroke-width="3" transform="rotate(8 25 22)"/><rect x="8" y="9" width="26" height="34" rx="3" fill="var(--superficie)" stroke="currentColor" stroke-width="3"/><circle cx="21" cy="21" r="5" fill="currentColor"/><path d="M13 36c1.5-6 14.5-6 16 0" fill="currentColor"/></symbol>
+    <symbol id="i-carta" viewBox="0 0 48 48"><path d="M10 6h28v28l-14 9-14-9z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><text x="24" y="21" text-anchor="middle" font-size="11" font-weight="900" fill="currentColor" font-family="system-ui">99</text><path d="M16 27h16" stroke="currentColor" stroke-width="2.5"/></symbol>
+    <symbol id="i-dispersao" viewBox="0 0 48 48"><path d="M6 6v36h36" fill="none" stroke="currentColor" stroke-width="3"/><g fill="currentColor"><circle cx="14" cy="33" r="2.6"/><circle cx="19" cy="27" r="2.6"/><circle cx="24" cy="30" r="2.6"/><circle cx="28" cy="20" r="2.6"/><circle cx="34" cy="23" r="2.6"/><circle cx="38" cy="13" r="2.6"/></g></symbol>
+    <symbol id="i-trofeu" viewBox="0 0 48 48"><path d="M14 6h20v12a10 10 0 0 1-20 0z" fill="currentColor"/><path d="M14 10H7c0 7 4 10 8 10M34 10h7c0 7-4 10-8 10" fill="none" stroke="currentColor" stroke-width="3"/><path d="M24 28v7M16 42h16M18 35h12v7H18z" stroke="currentColor" stroke-width="3" fill="none"/></symbol>
+    <symbol id="i-estrela" viewBox="0 0 48 48"><path d="M24 4l6 13 14 1.5-10.5 9.5 3 14L24 35l-12.5 7 3-14L4 18.5 18 17z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><circle cx="24" cy="24" r="4" fill="currentColor"/></symbol>
+    <symbol id="i-play" viewBox="0 0 48 48"><circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="3"/><path d="M19 15l14 9-14 9z" fill="currentColor"/></symbol>
+    <symbol id="i-raio" viewBox="0 0 48 48"><path d="M27 4L10 27h12l-3 17 19-25H26z" fill="currentColor"/></symbol>
+    <symbol id="i-cadeado" viewBox="0 0 48 48"><rect x="10" y="21" width="28" height="22" rx="4" fill="currentColor"/><path d="M16 21v-6a8 8 0 0 1 16 0v6" fill="none" stroke="currentColor" stroke-width="4"/></symbol>
+  </defs>
+</svg>
+
+<header class="topo">
+  <div class="tema"><button type="button" id="botao-tema" aria-label="Trocar tema claro ou escuro">🌗</button></div>
+  <div class="conteiner">
+    <svg class="bola-grande" viewBox="0 0 100 100" aria-hidden="true">
+      <circle cx="50" cy="50" r="46" fill="#fff" stroke="#1b1b1b" stroke-width="4"/>
+      <path d="M50 30l19 14-7 22H38l-7-22z" fill="#1b1b1b"/>
+      <path d="M50 30V5M69 44l23-8M62 66l14 22M38 66L24 88M31 44L8 36" stroke="#1b1b1b" stroke-width="4"/>
+    </svg>
+    <div class="topo-texto">
+      <h1>Futebol com Python ⚽🐍</h1>
+      <p>Aprenda a programar, a fazer contas e a pensar com lógica usando o que você mais gosta: <b>futebol</b>. Cada notebook responde uma pergunta de torcedor com código, e cada acerto vale <b>aura</b>.</p>
+      <div class="botoes">
+        <a class="botao botao-ouro" id="botao-comecar" href="#trilha">▶️ Comece pelo 01</a>
+        <a class="botao botao-claro" href="#pais">👨‍👩‍👦 Para os pais</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="conteiner">
+
+  <section id="como">
+    <h2><svg class="icone"><use href="#i-play"/></svg> Como funciona</h2>
+    <div class="passos">
+      <div class="passo">
+        <span class="numero">1</span>
+        <svg class="icone"><use href="#i-lupa"/></svg>
+        <h3>Escolha um notebook</h3>
+        <p>Comece pelo 01 e siga a ordem. Toque em <b>Abrir no Colab</b>: ele abre no navegador, sem instalar nada.</p>
+      </div>
+      <div class="passo">
+        <span class="numero">2</span>
+        <svg class="icone"><use href="#i-bola"/></svg>
+        <h3>Aperte o play ▶️</h3>
+        <p>A primeira célula prepara o <b>vestiário</b>. Depois é só ir descendo e apertando o play em cada célula.</p>
+      </div>
+      <div class="passo">
+        <span class="numero">3</span>
+        <svg class="icone"><use href="#i-trofeu"/></svg>
+        <h3>Cumpra as missões</h3>
+        <p>Troque o <code>___</code> pela resposta e use <code>checar()</code>. Acertou? Ganha aura e libera jogos!</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="aura">
+    <h2><svg class="icone"><use href="#i-raio"/></svg> Farmando aura</h2>
+    <div class="aura-caixa">
+      <p style="margin:0">Cada resposta certa enche a sua barra de aura. Quanto mais aura, mais alto o seu nível:</p>
+      <div class="escada">
+        <div class="degrau" style="background:#78909c">Reserva<small>0</small></div>
+        <div class="degrau" style="background:#43a047">Titular<small>1.000</small></div>
+        <div class="degrau" style="background:#1e88e5">Craque<small>3.000</small></div>
+        <div class="degrau" style="background:#8e24aa">Lenda<small>6.000</small></div>
+        <div class="degrau" style="background:#f9a825;color:#1c1c1c">Sigma Supremo<small>10.000</small></div>
+      </div>
+      <ul class="regras">
+        <li>✅ Resposta certa: <b>+100</b></li>
+        <li>🎯 De primeira: <b>+50</b> de bônus</li>
+        <li>⭐ Desafio difícil: <b>+500</b></li>
+        <li>🔥 3 seguidas: <b>sequência!</b></li>
+        <li>🤲 Apareceu um 67? <b>Six seven!</b></li>
+        <li>🔧 Errou? <b>Modo beta</b>: dica, treino rápido e nova tentativa. A aura nunca diminui.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="trilha">
+    <h2><svg class="icone"><use href="#i-campo"/></svg> A trilha: 4 níveis, 16 notebooks</h2>
+    <p style="color:var(--suave);margin-top:0">Os níveis têm nomes das categorias de base. Cada notebook usa só o que você aprendeu nos anteriores.</p>
+    <div id="niveis"></div>
+  </section>
+
+  <section id="jogos">
+    <h2><svg class="icone"><use href="#i-estrela"/></svg> Jogos do vestiário</h2>
+    <p style="color:var(--suave);margin-top:0">Termine um notebook para liberar o jogo dele. Para ver sua coleção, escreva <code>vestiario()</code> no notebook.</p>
+    <div class="jogos" id="lista-jogos"></div>
+  </section>
+
+  <section id="pais">
+    <h2>👨‍👩‍👦 Para os pais</h2>
+    <details open>
+      <summary>O que é isto?</summary>
+      <div>
+        <p>Uma sequência de notebooks do Google Colab que ensina Python, estatística, matemática e lógica para uma criança de uns 8 anos, usando futebol. Cada missão leva de 3 a 5 minutos, e cada notebook leva de 15 a 25 minutos.</p>
+        <p>Todo o texto está em português. A criança digita pouco no começo (troca um <code>___</code>) e vai escrevendo mais código a cada nível.</p>
+      </div>
+    </details>
+    <details>
+      <summary>Como abrir (computador, tablet e celular)</summary>
+      <div>
+        <p><b>Computador ou tablet:</b> toque em <b>Abrir no Colab</b>, entre com uma conta Google e aperte ▶️ na primeira célula. Se aparecer um aviso dizendo que o notebook não é do Google, toque em <b>Executar assim mesmo</b>.</p>
+        <p><b>Celular:</b> funciona no navegador (Chrome ou Safari). Toque numa célula para digitar e no ▶️ para rodar. Uma tela maior é mais confortável para a criança.</p>
+      </div>
+    </details>
+    <details>
+      <summary>Como guardar o progresso</summary>
+      <div>
+        <p>O Colab esquece tudo quando a sessão acaba. No fim de cada notebook aparece um <b>código secreto</b> (por exemplo <code>AURA-1350-J3N5-7F2</code>). Anote num papel. No próximo notebook, a criança escreve <code>carregar_progresso("AURA-…")</code> e recupera a aura e os jogos.</p>
+        <p>Se preferir, <code>salvar_progresso(drive=True)</code> guarda também no seu Google Drive (o Colab pede permissão).</p>
+      </div>
+    </details>
+    <details>
+      <summary>De onde vêm os dados</summary>
+      <div>
+        <p>Do projeto <a href="https://github.com/dcaribou/transfermarkt-datasets" target="_blank" rel="noopener">transfermarkt-datasets</a> (licença CC0 1.0). As atualizações pararam em julho de 2026, então usamos a <b>temporada 2025–26 completa</b> das 5 grandes ligas da Europa: Inglaterra, Espanha, Alemanha, Itália e França.</p>
+        <p>As curiosidades sobre jogadores e clubes são conferidas, têm fonte e levam para a Wikipédia em português.</p>
+      </div>
+    </details>
+    <details>
+      <summary>Privacidade, pausas e regras do jogo</summary>
+      <div>
+        <p>Nenhum dado pessoal é coletado ou enviado. Não há anúncios, compras, chat nem redes sociais. As únicas conexões são: baixar o projeto, as figuras de reação e, às vezes, um resumo da Wikipédia.</p>
+        <p>Depois de uns 20 minutos, aparece a sugestão <b>⏸️ Intervalo!</b> (alongar, beber água, chutar uma bola de verdade). É só uma sugestão.</p>
+        <p>As brincadeiras nunca zoam a criança: um erro vira <b>modo beta</b>, como uma versão de teste de um aplicativo, sempre com dica e nova tentativa.</p>
+      </div>
+    </details>
+  </section>
+</main>
+
+<footer>
+  <div class="conteiner">
+    <p>Uso livre para fins <b>não comerciais</b> (famílias, escolas, estudo). Notebooks e textos: <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.pt_BR" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a>. Código e jogos: <a href="https://polyformproject.org/licenses/noncommercial/1.0.0/" target="_blank" rel="noopener">PolyForm Noncommercial 1.0.0</a>. Para uso comercial, fale com o autor. Dados: transfermarkt-datasets (CC0 1.0).</p>
+    <p><a id="link-repo" href="#" target="_blank" rel="noopener">Código no GitHub</a>.</p>
+  </div>
+</footer>
+
+<script src="catalogo.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  // Tema claro/escuro escolhido à mão (guardado só neste navegador).
+  var raiz = document.documentElement;
+  try {
+    var salvo = localStorage.getItem("tema");
+    if (salvo) raiz.setAttribute("data-theme", salvo);
+  } catch (e) {}
+  document.getElementById("botao-tema").onclick = function () {
+    var escuro = raiz.getAttribute("data-theme") === "dark" ||
+      (!raiz.getAttribute("data-theme") && matchMedia("(prefers-color-scheme: dark)").matches);
+    var novo = escuro ? "light" : "dark";
+    raiz.setAttribute("data-theme", novo);
+    try { localStorage.setItem("tema", novo); } catch (e) {}
+  };
+
+  var JOGOS = {
+    embaixadinhas: { titulo: "Embaixadinhas", emoji: "🦶" },
+    tabela_maluca: { titulo: "Tabela Maluca", emoji: "📋" },
+    goleiro_reflexo: { titulo: "Goleiro Reflexo", emoji: "🧤" },
+    penalti: { titulo: "Pênalti", emoji: "🥅" }
+  };
+
+  var catalogo = window.CATALOGO;
+  var lugar = document.getElementById("niveis");
+  if (!catalogo) {
+    lugar.innerHTML = "<p>Não achei a lista de notebooks. Rode <code>pixi run construir-site</code>.</p>";
+    return;
+  }
+
+  function el(tag, classe, texto) {
+    var e = document.createElement(tag);
+    if (classe) e.className = classe;
+    if (texto != null) e.textContent = texto;
+    return e;
+  }
+
+  function icone(nome) {
+    var ns = "http://www.w3.org/2000/svg";
+    var svg = document.createElementNS(ns, "svg");
+    svg.setAttribute("class", "icone");
+    svg.setAttribute("aria-hidden", "true");
+    var uso = document.createElementNS(ns, "use");
+    uso.setAttribute("href", "#i-" + nome);
+    svg.appendChild(uso);
+    return svg;
+  }
+
+  function cartao(nb, nivel) {
+    var c = el("article", "cartao" + (nb.colab ? "" : " em-breve"));
+    c.style.setProperty("--cor", "var(--nivel" + nivel.numero + ")");
+
+    var topo = el("div", "cartao-topo");
+    var caixaIcone = el("div", "cartao-icone");
+    caixaIcone.appendChild(icone(nb.icone));
+    topo.appendChild(caixaIcone);
+    var titulos = el("div");
+    titulos.appendChild(el("div", "cartao-num", "NOTEBOOK " + String(nb.numero).padStart(2, "0")));
+    titulos.appendChild(el("h4", null, nb.titulo));
+    topo.appendChild(titulos);
+    c.appendChild(topo);
+
+    c.appendChild(el("p", "pergunta", "“" + nb.pergunta + "”"));
+
+    var etiquetas = el("ul", "etiquetas");
+    nb.python.forEach(function (t) { etiquetas.appendChild(el("li", null, "🐍 " + t)); });
+    nb.matematica.forEach(function (t) { etiquetas.appendChild(el("li", "mat", "📊 " + t)); });
+    c.appendChild(etiquetas);
+
+    var rodape = el("div", "cartao-rodape");
+    rodape.appendChild(el("span", "tempo", "⏱️ ~" + nb.minutos + " min" +
+      (nb.jogo && JOGOS[nb.jogo] ? " · " + JOGOS[nb.jogo].emoji : "")));
+    if (nb.colab) {
+      var a = el("a", "botao botao-colab", "▶️ Abrir no Colab");
+      a.href = nb.colab;
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.setAttribute("aria-label", "Abrir o notebook " + nb.numero + ", " + nb.titulo + ", no Colab");
+      rodape.appendChild(a);
+    } else {
+      var b = el("span", "botao botao-trancado", "🔒 Em breve");
+      rodape.appendChild(b);
+    }
+    c.appendChild(rodape);
+    return c;
+  }
+
+  catalogo.niveis.forEach(function (nivel) {
+    var bloco = el("div", "nivel");
+    bloco.style.setProperty("--cor", "var(--nivel" + nivel.numero + ")");
+    var cabeca = el("div", "nivel-cabeca");
+    cabeca.appendChild(el("h3", null, "Nível " + nivel.numero + " · " + nivel.nome + " (" + nivel.tema + ")"));
+    cabeca.appendChild(el("p", null, nivel.descricao));
+    bloco.appendChild(cabeca);
+    var grade = el("div", "cartoes");
+    catalogo.notebooks
+      .filter(function (nb) { return nb.nivel === nivel.numero; })
+      .forEach(function (nb) { grade.appendChild(cartao(nb, nivel)); });
+    bloco.appendChild(grade);
+    lugar.appendChild(bloco);
+  });
+
+  // Jogos do vestiário e em qual notebook cada um é liberado.
+  var listaJogos = document.getElementById("lista-jogos");
+  catalogo.notebooks.forEach(function (nb) {
+    if (!nb.jogo || !JOGOS[nb.jogo]) return;
+    var j = el("div", "jogo");
+    j.appendChild(el("div", "emoji", JOGOS[nb.jogo].emoji));
+    j.appendChild(el("b", null, JOGOS[nb.jogo].titulo));
+    j.appendChild(el("small", null, "Libera no notebook " + String(nb.numero).padStart(2, "0")));
+    listaJogos.appendChild(j);
+  });
+  var maisJogos = el("div", "jogo");
+  maisJogos.appendChild(el("div", "emoji", "🔒"));
+  maisJogos.appendChild(el("b", null, "???"));
+  maisJogos.appendChild(el("small", null, "Novos jogos nos próximos níveis"));
+  listaJogos.appendChild(maisJogos);
+
+  // O botão "Comece pelo 01" abre direto o primeiro notebook pronto.
+  var primeiro = catalogo.notebooks.filter(function (nb) { return nb.colab; })[0];
+  if (primeiro) {
+    var comecar = document.getElementById("botao-comecar");
+    comecar.href = primeiro.colab;
+    comecar.target = "_blank";
+    comecar.rel = "noopener";
+  }
+  document.getElementById("link-repo").href = catalogo.repo;
+})();
+</script>
+</body>
+</html>

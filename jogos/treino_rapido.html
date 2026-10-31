@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Treino Rápido</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+html,body{height:100%}
+body{background:#00695c;font-family:system-ui,"Segoe UI",Roboto,Arial,sans-serif;color:#13213c;display:flex;justify-content:center;overflow:hidden}
+#app{position:relative;width:100%;max-width:520px;height:100%;max-height:560px;min-height:400px;display:flex;flex-direction:column;background:linear-gradient(135deg,#b2ebf2,#c8e6c9);overflow:hidden}
+.barra{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;font-weight:800;font-size:22px;background:#ffffffcc;z-index:5}
+.tela{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:18px;background:#fff8e1f7;z-index:20;overflow-y:auto}
+.tela h1{font-size:34px;color:#00796b}
+.tela p{font-size:19px;max-width:420px;line-height:1.35}
+.grande{font-size:56px}
+.escondido{display:none!important}
+.botao{min-height:60px;min-width:180px;padding:12px 30px;font-size:26px;font-weight:900;border:0;border-radius:999px;background:#ffd600;color:#13213c;box-shadow:0 6px 0 #c79f00;cursor:pointer;font-family:inherit}
+.botao:active{transform:translateY(4px);box-shadow:0 2px 0 #c79f00}
+.botao:disabled{opacity:.5}
+#cabeca{text-align:center;font-size:18px;font-weight:800;color:#004d40;padding:6px 10px;background:#ffffff88}
+#campo{position:relative;flex:1;touch-action:none}
+#bola{position:absolute;left:0;top:0;width:76px;height:76px;padding:6px;cursor:pointer;transition:transform .12s ease-out}
+#bola svg{width:100%;height:100%;pointer-events:none}
+.efeito{position:absolute;font-size:30px;font-weight:900;color:#00796b;pointer-events:none;animation:sobe .5s ease-out forwards}
+@keyframes sobe{from{opacity:1}to{opacity:0;transform:translateY(-30px)}}
+#dica{background:#fff59d;border:3px solid #fbc02d;border-radius:14px;padding:12px 14px;font-size:19px;font-weight:700;max-width:440px;line-height:1.35}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="barra"><span>⏱️ <span id="tempo">25</span>s</span><span>⚽ <span id="placar">0</span></span></div>
+  <div id="cabeca">Treino rápido! Depois a gente tenta de novo.</div>
+  <div id="campo">
+    <div id="bola"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#fff" stroke="#222" stroke-width="4"/><polygon points="50,30 69,44 62,66 38,66 31,44" fill="#222"/><path d="M50 30V6M69 44 92 37M62 66 76 86M38 66 24 86M31 44 8 37" stroke="#222" stroke-width="4"/></svg></div>
+  </div>
+
+  <div id="inicio" class="tela">
+    <div class="grande">⏱️⚽</div>
+    <h1>Treino Rápido</h1>
+    <p>Treino rápido! Depois a gente tenta de novo.</p>
+    <p>A bola vai pular pelo campo. Toque nela o máximo de vezes que puder!</p>
+    <button class="botao" id="jogar">Jogar</button>
+  </div>
+
+  <div id="fim" class="tela escondido">
+    <h1>Fim de jogo!</h1>
+    <p id="resultado"></p>
+    <div id="dica" class="escondido"></div>
+    <p><b>Agora volte e tente a missão de novo!</b></p>
+    <button class="botao" id="denovo">Jogar de novo</button>
+  </div>
+</div>
+<script>
+// Configuração enviada pelo notebook (ou valores padrão se abrir sozinho)
+var CONFIG = window.CONFIG || {modo: "treino", dica: "", id: "", nome: "treino_rapido"};
+var DURACAO = 25;
+var TAMANHO = 76;
+function $(id) { return document.getElementById(id); }
+
+var jogando = false, toques = 0, fimEm = 0, relogio = null, pulo = null;
+var frases = ["Boa!", "Isso!", "+1", "Rápido!"];
+
+document.addEventListener("dblclick", function (e) { e.preventDefault(); });
+
+function enviarResultado() {
+  // Treino nunca dá aura: sempre 0 pontos
+  try {
+    parent.postMessage({tipo: "fim_de_jogo", id: CONFIG.id, modo: CONFIG.modo, nome: CONFIG.nome, pontos: 0}, "*");
+  } catch (e) {}
+}
+
+function pularBola() {
+  var c = $("campo");
+  var x = Math.random() * Math.max(0, c.clientWidth - TAMANHO);
+  var y = Math.random() * Math.max(0, c.clientHeight - TAMANHO);
+  $("bola").style.transform = "translate(" + x + "px," + y + "px)";
+  $("bola").dataset.x = x; $("bola").dataset.y = y;
+  // Se ninguém tocar, a bola pula sozinha depois de um tempinho
+  clearTimeout(pulo);
+  pulo = setTimeout(function () { if (jogando) pularBola(); }, 1500);
+}
+
+function efeito(x, y) {
+  var e = document.createElement("div");
+  e.className = "efeito";
+  e.textContent = frases[Math.floor(Math.random() * frases.length)];
+  e.style.left = x + "px"; e.style.top = y + "px";
+  $("campo").appendChild(e);
+  setTimeout(function () { e.remove(); }, 550);
+}
+
+$("bola").addEventListener("pointerdown", function (e) {
+  e.preventDefault();
+  if (!jogando) return;
+  toques++;
+  $("placar").textContent = toques;
+  efeito(parseFloat(this.dataset.x) + 10, parseFloat(this.dataset.y));
+  pularBola();
+});
+
+function comecar() {
+  toques = 0; jogando = true;
+  $("placar").textContent = "0";
+  $("inicio").classList.add("escondido");
+  $("fim").classList.add("escondido");
+  pularBola();
+  fimEm = Date.now() + DURACAO * 1000;
+  clearInterval(relogio);
+  relogio = setInterval(function () {
+    var resta = Math.max(0, Math.ceil((fimEm - Date.now()) / 1000));
+    $("tempo").textContent = resta;
+    if (resta <= 0) terminar();
+  }, 100);
+}
+
+function terminar() {
+  clearInterval(relogio);
+  clearTimeout(pulo);
+  jogando = false;
+  $("resultado").textContent = "Você tocou na bola " + toques + (toques === 1 ? " vez" : " vezes") + "! Bom treino! 💪";
+  var dica = (CONFIG.dica || "").trim();
+  if (dica) {
+    $("dica").textContent = "💡 Dica: " + dica;
+    $("dica").classList.remove("escondido");
+  } else {
+    $("dica").classList.add("escondido");
+  }
+  $("fim").classList.remove("escondido");
+  var botao = $("denovo");
+  botao.disabled = true;
+  setTimeout(function () { botao.disabled = false; }, 900);
+  enviarResultado();
+}
+
+$("jogar").addEventListener("pointerdown", function (e) { e.preventDefault(); comecar(); });
+$("denovo").addEventListener("pointerdown", function (e) { e.preventDefault(); if (!this.disabled) comecar(); });
+</script>
+</body>
+</html>

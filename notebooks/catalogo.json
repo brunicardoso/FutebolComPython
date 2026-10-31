@@ -1,0 +1,375 @@
+{
+  "niveis": [
+    {
+      "numero": 1,
+      "nome": "Sub-9",
+      "tema": "Fundamentos",
+      "descricao": "Python como calculadora, tabelas, listas e sorteios. Você digita só uma ou duas linhas por missão.",
+      "cor": "#2e7d32"
+    },
+    {
+      "numero": 2,
+      "nome": "Sub-11",
+      "tema": "Lógica",
+      "descricao": "O computador começa a decidir sozinho: se, senão, e, ou. Você escreve até 4 linhas.",
+      "cor": "#1565c0"
+    },
+    {
+      "numero": 3,
+      "nome": "Sub-13",
+      "tema": "Geometria e simulação",
+      "descricao": "Desenhe o campo, calcule ângulos e simule milhares de pênaltis. Você cria suas funções.",
+      "cor": "#6a1b9a"
+    },
+    {
+      "numero": 4,
+      "nome": "Sub-15",
+      "tema": "Construindo coisas",
+      "descricao": "Você recebe o objetivo e escreve o código. No fim, inventa o seu próprio jogo.",
+      "cor": "#c62828"
+    }
+  ],
+  "notebooks": [
+    {
+      "numero": 1,
+      "nivel": 1,
+      "id": "01_calculadora",
+      "arquivo": "notebooks/nivel1_sub9/01_calculadora.ipynb",
+      "titulo": "Python é uma calculadora",
+      "pergunta": "Quantos gols teve o jogo e qual é o saldo de gols?",
+      "python": [
+        "print",
+        "variáveis",
+        "+ - * /"
+      ],
+      "matematica": [
+        "números negativos",
+        "saldo de gols"
+      ],
+      "icone": "calculadora",
+      "minutos": 20,
+      "jogo": "embaixadinhas",
+      "usa_dados": false,
+      "status": "pronto"
+    },
+    {
+      "numero": 2,
+      "nivel": 1,
+      "id": "02_olheiro",
+      "arquivo": "notebooks/nivel1_sub9/02_olheiro.ipynb",
+      "titulo": "Olheiro de Joias",
+      "pergunta": "Quem é a melhor joia jovem da Europa?",
+      "python": [
+        "tabelas",
+        "head",
+        "sort_values",
+        "filtros"
+      ],
+      "matematica": [
+        "palpite e conferência",
+        "erro em porcentagem",
+        "total × taxa"
+      ],
+      "icone": "lupa",
+      "minutos": 20,
+      "jogo": "tabela_maluca",
+      "usa_dados": true,
+      "status": "pronto"
+    },
+    {
+      "numero": 3,
+      "nivel": 1,
+      "id": "03_escalacao",
+      "arquivo": "notebooks/nivel1_sub9/03_escalacao.ipynb",
+      "titulo": "Monte sua escalação",
+      "pergunta": "Como montar um time com 11 jogadores?",
+      "python": [
+        "listas",
+        "len",
+        "índices",
+        "append"
+      ],
+      "matematica": [
+        "contagem",
+        "formações (4-3-3)"
+      ],
+      "icone": "prancheta",
+      "minutos": 20,
+      "jogo": "goleiro_reflexo",
+      "usa_dados": false,
+      "status": "pronto"
+    },
+    {
+      "numero": 4,
+      "nivel": 1,
+      "id": "04_penaltis",
+      "arquivo": "notebooks/nivel1_sub9/04_penaltis.ipynb",
+      "titulo": "Cara ou coroa e pênaltis",
+      "pergunta": "Qual é a chance de fazer o gol de pênalti?",
+      "python": [
+        "random",
+        "repetição simples"
+      ],
+      "matematica": [
+        "chance",
+        "frações",
+        "jogo justo"
+      ],
+      "icone": "moeda",
+      "minutos": 20,
+      "jogo": "penalti",
+      "usa_dados": false,
+      "status": "pronto"
+    },
+    {
+      "numero": 5,
+      "nivel": 2,
+      "id": "05_var",
+      "arquivo": "notebooks/nivel2_sub11/05_var.ipynb",
+      "titulo": "O VAR decide",
+      "pergunta": "Foi pênalti ou não foi?",
+      "python": [
+        "if / elif / else",
+        "verdadeiro e falso"
+      ],
+      "matematica": [
+        "lógica",
+        "and / or"
+      ],
+      "icone": "var",
+      "minutos": 20,
+      "jogo": null,
+      "usa_dados": false,
+      "status": "em_breve"
+    },
+    {
+      "numero": 6,
+      "nivel": 2,
+      "id": "06_tabela",
+      "arquivo": "notebooks/nivel2_sub11/06_tabela.ipynb",
+      "titulo": "Tabela do campeonato",
+      "pergunta": "Quem é o campeão?",
+      "python": [
+        "for",
+        "acumuladores"
+      ],
+      "matematica": [
+        "sistema de pontos 3/1/0",
+        "critérios de desempate"
+      ],
+      "icone": "tabela",
+      "minutos": 20,
+      "jogo": null,
+      "usa_dados": false,
+      "status": "em_breve"
+    },
+    {
+      "numero": 7,
+      "nivel": 2,
+      "id": "07_gols_por_90",
+      "arquivo": "notebooks/nivel2_sub11/07_gols_por_90.ipynb",
+      "titulo": "Gols por 90 minutos",
+      "pergunta": "Quem é o artilheiro mais eficiente?",
+      "python": [
+        "colunas novas",
+        "divisão"
+      ],
+      "matematica": [
+        "taxas",
+        "justiça",
+        "amostra pequena"
+      ],
+      "icone": "cronometro",
+      "minutos": 20,
+      "jogo": null,
+      "usa_dados": true,
+      "status": "em_breve"
+    },
+    {
+      "numero": 8,
+      "nivel": 2,
+      "id": "08_media_mediana",
+      "arquivo": "notebooks/nivel2_sub11/08_media_mediana.ipynb",
+      "titulo": "Média ou mediana?",
+      "pergunta": "Quanto vale um jogador “normal”?",
+      "python": [
+        "mean",
+        "median",
+        "max",
+        "min"
+      ],
+      "matematica": [
+        "valores extremos"
+      ],
+      "icone": "grafico",
+      "minutos": 20,
+      "jogo": null,
+      "usa_dados": true,
+      "status": "em_breve"
+    },
+    {
+      "numero": 9,
+      "nivel": 3,
+      "id": "09_campo",
+      "arquivo": "notebooks/nivel3_sub13/09_campo.ipynb",
+      "titulo": "Desenhe o campo",
+      "pergunta": "Qual é o tamanho de um campo de futebol?",
+      "python": [
+        "matplotlib",
+        "coordenadas"
+      ],
+      "matematica": [
+        "plano x/y",
+        "área",
+        "perímetro",
+        "escala"
+      ],
+      "icone": "campo",
+      "minutos": 20,
+      "jogo": null,
+      "usa_dados": false,
+      "status": "em_breve"
+    },
+    {
+      "numero": 10,
+      "nivel": 3,
+      "id": "10_distancia_angulo",
+      "arquivo": "notebooks/nivel3_sub13/10_distancia_angulo.ipynb",
+      "titulo": "Distância e ângulo do chute",
+      "pergunta": "Por que chutar de lado é mais difícil?",
+      "python": [
+        "def",
+        "math"
+      ],
+      "matematica": [
+        "Pitágoras",
+        "ângulos"
+      ],
+      "icone": "angulo",
+      "minutos": 20,
+      "jogo": null,
+      "usa_dados": false,
+      "status": "em_breve"
+    },
+    {
+      "numero": 11,
+      "nivel": 3,
+      "id": "11_disputas",
+      "arquivo": "notebooks/nivel3_sub13/11_disputas.ipynb",
+      "titulo": "10.000 disputas de pênaltis",
+      "pergunta": "Quem bate primeiro tem vantagem?",
+      "python": [
+        "laços + random",
+        "contadores"
+      ],
+      "matematica": [
+        "Monte Carlo",
+        "lei dos grandes números"
+      ],
+      "icone": "dado",
+      "minutos": 20,
+      "jogo": null,
+      "usa_dados": false,
+      "status": "em_breve"
+    },
+    {
+      "numero": 12,
+      "nivel": 3,
+      "id": "12_album",
+      "arquivo": "notebooks/nivel3_sub13/12_album.ipynb",
+      "titulo": "O álbum de figurinhas",
+      "pergunta": "Quantos pacotinhos para completar o álbum?",
+      "python": [
+        "dicionários",
+        "while"
+      ],
+      "matematica": [
+        "problema do colecionador"
+      ],
+      "icone": "figurinha",
+      "minutos": 20,
+      "jogo": null,
+      "usa_dados": false,
+      "status": "em_breve"
+    },
+    {
+      "numero": 13,
+      "nivel": 4,
+      "id": "13_carta",
+      "arquivo": "notebooks/nivel4_sub15/13_carta.ipynb",
+      "titulo": "Sua carta de jogador",
+      "pergunta": "Qual é o seu overall?",
+      "python": [
+        "funções",
+        "f-strings",
+        "dicionários"
+      ],
+      "matematica": [
+        "média ponderada"
+      ],
+      "icone": "carta",
+      "minutos": 20,
+      "jogo": null,
+      "usa_dados": true,
+      "status": "em_breve"
+    },
+    {
+      "numero": 14,
+      "nivel": 4,
+      "id": "14_idade_gols",
+      "arquivo": "notebooks/nivel4_sub15/14_idade_gols.ipynb",
+      "titulo": "Idade e gols andam juntos?",
+      "pergunta": "Jogador mais velho faz mais gols?",
+      "python": [
+        "gráfico de dispersão"
+      ],
+      "matematica": [
+        "correlação não é causa"
+      ],
+      "icone": "dispersao",
+      "minutos": 20,
+      "jogo": null,
+      "usa_dados": true,
+      "status": "em_breve"
+    },
+    {
+      "numero": 15,
+      "nivel": 4,
+      "id": "15_simulador",
+      "arquivo": "notebooks/nivel4_sub15/15_simulador.ipynb",
+      "titulo": "Simulador de campeonato",
+      "pergunta": "Quem ganharia o campeonato mil vezes?",
+      "python": [
+        "funções + laços + random"
+      ],
+      "matematica": [
+        "probabilidade",
+        "valor esperado"
+      ],
+      "icone": "trofeu",
+      "minutos": 20,
+      "jogo": null,
+      "usa_dados": false,
+      "status": "em_breve"
+    },
+    {
+      "numero": 16,
+      "nivel": 4,
+      "id": "16_projeto_final",
+      "arquivo": "notebooks/nivel4_sub15/16_projeto_final.ipynb",
+      "titulo": "Projeto final: seu jogo de futebol",
+      "pergunta": "Que jogo você vai inventar?",
+      "python": [
+        "tudo junto"
+      ],
+      "matematica": [
+        "você cria as regras"
+      ],
+      "icone": "estrela",
+      "minutos": 20,
+      "jogo": null,
+      "usa_dados": false,
+      "status": "em_breve"
+    }
+  ]
+}

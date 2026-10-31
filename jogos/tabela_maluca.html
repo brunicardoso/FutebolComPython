@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tabela Maluca</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+html,body{height:100%}
+body{background:#e65100;font-family:system-ui,"Segoe UI",Roboto,Arial,sans-serif;color:#13213c;display:flex;justify-content:center;overflow:hidden}
+#app{position:relative;width:100%;max-width:520px;height:100%;max-height:560px;min-height:420px;display:flex;flex-direction:column;background:linear-gradient(#fff3e0,#ffe0b2);overflow:hidden}
+.barra{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;font-weight:800;font-size:20px;background:#ff9800;color:#fff;z-index:5}
+.tela{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:20px;background:#fff8e1f7;z-index:20}
+.tela h1{font-size:38px;color:#e65100}
+.tela p{font-size:20px;max-width:420px;line-height:1.35}
+.grande{font-size:64px}
+.escondido{display:none!important}
+.botao{min-height:60px;min-width:180px;padding:12px 30px;font-size:26px;font-weight:900;border:0;border-radius:999px;background:#ffd600;color:#13213c;box-shadow:0 6px 0 #c79f00;cursor:pointer;font-family:inherit}
+.botao:active{transform:translateY(4px);box-shadow:0 2px 0 #c79f00}
+.botao:disabled{opacity:.5}
+#jogo{flex:1;display:flex;flex-direction:column;gap:8px;padding:8px 12px 12px}
+#pedido{text-align:center;font-size:20px;font-weight:900;color:#bf360c;min-height:28px}
+#tabela{background:#fff;border-radius:14px;box-shadow:0 3px 0 #0002;overflow:hidden}
+.linha{display:flex;align-items:center;gap:8px;height:40px;padding:0 10px;font-size:18px;font-weight:700;border-bottom:1px solid #ffe0b2}
+.linha:last-child{border-bottom:0}
+.linha .pos{width:34px;font-weight:900;color:#e65100}
+.linha .nome{flex:1}
+.linha .pts{font-weight:900}
+.linha.cheia{background:#e8f5e9;animation:entra .3s ease-out}
+@keyframes entra{from{transform:translateX(-20px);opacity:0}to{transform:none;opacity:1}}
+#times{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:10px;min-height:0}
+.time{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:64px;border:0;border-radius:16px;background:#fff;box-shadow:0 5px 0 #0002;font-family:inherit;font-size:17px;font-weight:800;color:#13213c;cursor:pointer;padding:6px}
+.time .emo{font-size:28px}
+.time .pts{font-size:20px;color:#e65100}
+.time:active{transform:translateY(3px)}
+.time.usado{visibility:hidden}
+.time.balanca{animation:balanca .4s}
+@keyframes balanca{0%,100%{transform:none}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="barra"><span>⏱️ <span id="tempo">45</span>s</span><span>📋 Tabelas: <span id="placar">0</span></span></div>
+  <div id="jogo">
+    <div id="pedido"></div>
+    <div id="tabela"></div>
+    <div id="times"></div>
+  </div>
+
+  <div id="inicio" class="tela">
+    <div class="grande">📋🏆</div>
+    <h1>Tabela Maluca</h1>
+    <p>Toque nos times do que tem mais pontos para o que tem menos. O campeão primeiro!</p>
+    <button class="botao" id="jogar">Jogar</button>
+  </div>
+
+  <div id="fim" class="tela escondido">
+    <div class="grande">🏆</div>
+    <h1>Fim de jogo!</h1>
+    <p id="resultado"></p>
+    <p id="aura"></p>
+    <button class="botao" id="denovo">Jogar de novo</button>
+  </div>
+</div>
+<script>
+// Configuração enviada pelo notebook (ou valores padrão se abrir sozinho)
+var CONFIG = window.CONFIG || {modo: "campeao", dica: "", id: "", nome: "tabela_maluca"};
+var DURACAO = 45;
+// Times inventados (nenhum time de verdade)
+var TIMES = [
+  ["🦈", "Tubarões FC"], ["🚀", "Foguete EC"], ["⚡", "Trovão"], ["🦁", "Leões da Vila"],
+  ["🐢", "Tartarugas Velozes"], ["🌵", "Cacto Futebol"], ["🍕", "Pizzaria EC"], ["🐸", "Sapos Saltadores"],
+  ["🌋", "Vulcão FC"], ["🦜", "Papagaios EC"], ["🐝", "Abelhas Unidas"], ["🌪️", "Furacão Azul"]
+];
+var POSICOES = ["1º", "2º", "3º", "4º"];
+function $(id) { return document.getElementById(id); }
+
+var jogando = false, tabelas = 0, fimEm = 0, relogio = null, rodada = [], ordem = [], proximo = 0, travado = false;
+
+document.addEventListener("dblclick", function (e) { e.preventDefault(); });
+
+function enviarResultado(pontos) {
+  try {
+    parent.postMessage({tipo: "fim_de_jogo", id: CONFIG.id, modo: CONFIG.modo, nome: CONFIG.nome, pontos: pontos}, "*");
+  } catch (e) {}
+}
+
+function embaralhar(lista) {
+  var a = lista.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+function novaTabela() {
+  // Sorteia 4 times e 4 pontuações diferentes entre 0 e 30
+  var nomes = embaralhar(TIMES).slice(0, 4);
+  var pontos = embaralhar(Array.from({length: 31}, function (_, i) { return i; })).slice(0, 4);
+  rodada = nomes.map(function (t, i) { return {emo: t[0], nome: t[1], pts: pontos[i]}; });
+  ordem = rodada.slice().sort(function (a, b) { return b.pts - a.pts; });
+  proximo = 0;
+  travado = false;
+  var tab = $("tabela");
+  tab.innerHTML = "";
+  for (var i = 0; i < 4; i++) {
+    var l = document.createElement("div");
+    l.className = "linha";
+    l.innerHTML = '<span class="pos">' + POSICOES[i] + '</span><span class="nome">❔</span><span class="pts"></span>';
+    tab.appendChild(l);
+  }
+  var caixa = $("times");
+  caixa.innerHTML = "";
+  rodada.forEach(function (t) {
+    var b = document.createElement("button");
+    b.className = "time";
+    b.innerHTML = '<span class="emo">' + t.emo + '</span><span>' + t.nome + '</span><span class="pts">' + t.pts + ' pts</span>';
+    b.addEventListener("pointerdown", function (e) { e.preventDefault(); escolher(t, b); });
+    caixa.appendChild(b);
+  });
+  atualizarPedido();
+}
+
+function atualizarPedido() {
+  $("pedido").textContent = proximo === 0 ? "Quem é o campeão? Toque no time com mais pontos!" : "Agora o " + POSICOES[proximo] + " lugar!";
+}
+
+function escolher(t, botao) {
+  if (!jogando || travado) return;
+  if (t === ordem[proximo]) {
+    // Acertou: o time entra na tabela
+    var l = $("tabela").children[proximo];
+    l.querySelector(".nome").textContent = t.emo + " " + t.nome;
+    l.querySelector(".pts").textContent = t.pts;
+    l.classList.add("cheia");
+    botao.classList.add("usado");
+    proximo++;
+    if (proximo === 4) {
+      tabelas++;
+      $("placar").textContent = tabelas;
+      $("pedido").textContent = "Tabela pronta! 🎉";
+      travado = true;
+      setTimeout(function () { if (jogando) novaTabela(); }, 700);
+    } else {
+      atualizarPedido();
+    }
+  } else {
+    // Errou: o botão balança de leve
+    botao.classList.remove("balanca");
+    void botao.offsetWidth;
+    botao.classList.add("balanca");
+    $("pedido").textContent = "Quase! Procure quem tem mais pontos.";
+  }
+}
+
+function comecar() {
+  tabelas = 0; jogando = true;
+  $("placar").textContent = "0";
+  $("inicio").classList.add("escondido");
+  $("fim").classList.add("escondido");
+  novaTabela();
+  fimEm = Date.now() + DURACAO * 1000;
+  clearInterval(relogio);
+  relogio = setInterval(function () {
+    var resta = Math.max(0, Math.ceil((fimEm - Date.now()) / 1000));
+    $("tempo").textContent = resta;
+    if (resta <= 0) terminar();
+  }, 100);
+}
+
+function terminar() {
+  clearInterval(relogio);
+  jogando = false;
+  // Aura de 0 a 50: 10 pontos por tabela completa, no máximo 50
+  var pontos = CONFIG.modo === "campeao" ? Math.min(50, tabelas * 10) : 0;
+  $("resultado").textContent = "Você montou " + tabelas + (tabelas === 1 ? " tabela" : " tabelas") + " certinha" + (tabelas === 1 ? "" : "s") + "!";
+  $("aura").textContent = (pontos > 0 && CONFIG.id) ? "✨ +" + pontos + " de aura! ✨" : "Ordenar fica mais fácil com treino. Bora de novo!";
+  $("fim").classList.remove("escondido");
+  var botao = $("denovo");
+  botao.disabled = true;
+  setTimeout(function () { botao.disabled = false; }, 900);
+  enviarResultado(pontos);
+}
+
+$("jogar").addEventListener("pointerdown", function (e) { e.preventDefault(); comecar(); });
+$("denovo").addEventListener("pointerdown", function (e) { e.preventDefault(); if (!this.disabled) comecar(); });
+</script>
+</body>
+</html>

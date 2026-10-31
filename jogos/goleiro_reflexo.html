@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Goleiro Reflexo</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+html,body{height:100%}
+body{background:#4a148c;font-family:system-ui,"Segoe UI",Roboto,Arial,sans-serif;color:#13213c;display:flex;justify-content:center;overflow:hidden}
+#app{position:relative;width:100%;max-width:520px;height:100%;max-height:560px;min-height:400px;display:flex;flex-direction:column;background:repeating-linear-gradient(0deg,#43a047 0 40px,#4caf50 40px 80px);overflow:hidden}
+.barra{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:8px 10px;font-weight:800;font-size:19px;background:#ffffffcc;z-index:5}
+.tela{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:20px;background:#fff8e1f2;z-index:20}
+.tela h1{font-size:36px;color:#6a1b9a}
+.tela p{font-size:20px;max-width:420px;line-height:1.35}
+.grande{font-size:64px}
+.escondido{display:none!important}
+.botao{min-height:60px;min-width:180px;padding:12px 30px;font-size:26px;font-weight:900;border:0;border-radius:999px;background:#ffd600;color:#13213c;box-shadow:0 6px 0 #c79f00;cursor:pointer;font-family:inherit}
+.botao:active{transform:translateY(4px);box-shadow:0 2px 0 #c79f00}
+.botao:disabled{opacity:.5}
+#campo{position:relative;flex:1;touch-action:none}
+#gol{position:absolute;left:6%;right:6%;bottom:0;height:46px;border:6px solid #fff;border-bottom:0;background:repeating-linear-gradient(0deg,#ffffff50 0 2px,transparent 2px 12px),repeating-linear-gradient(90deg,#ffffff50 0 2px,transparent 2px 12px),#1b5e2066}
+#linha{position:absolute;left:0;right:0;bottom:46px;height:4px;background:#fff}
+.bola{position:absolute;left:0;top:0;width:68px;height:68px;padding:8px;cursor:pointer;will-change:transform}
+.bola svg{width:100%;height:100%;pointer-events:none}
+.efeito{position:absolute;font-size:36px;pointer-events:none;animation:sobe .6s ease-out forwards}
+@keyframes sobe{from{opacity:1;transform:scale(.6)}to{opacity:0;transform:translateY(-30px) scale(1.4)}}
+#aviso{position:absolute;left:0;right:0;top:10px;text-align:center;font-size:26px;font-weight:900;color:#fff;text-shadow:0 2px 0 #0008;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="barra"><span>⏱️ <span id="tempo">45</span>s</span><span>🧤 <span id="defesas">0</span></span><span>🥅 <span id="sofridos">0</span></span></div>
+  <div id="campo">
+    <div id="linha"></div>
+    <div id="gol"></div>
+    <div id="aviso"></div>
+  </div>
+
+  <div id="inicio" class="tela">
+    <div class="grande">🧤⚽</div>
+    <h1>Goleiro Reflexo</h1>
+    <p>Toque em cada bola antes que ela passe da linha do gol!</p>
+    <button class="botao" id="jogar">Jogar</button>
+  </div>
+
+  <div id="fim" class="tela escondido">
+    <div class="grande">🏆</div>
+    <h1>Fim de jogo!</h1>
+    <p id="resultado"></p>
+    <p id="aura"></p>
+    <button class="botao" id="denovo">Jogar de novo</button>
+  </div>
+</div>
+<script>
+// Configuração enviada pelo notebook (ou valores padrão se abrir sozinho)
+var CONFIG = window.CONFIG || {modo: "campeao", dica: "", id: "", nome: "goleiro_reflexo"};
+var DURACAO = 45;
+var TAMANHO = 68;
+var DESENHO_BOLA = '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#fff" stroke="#222" stroke-width="4"/><polygon points="50,30 69,44 62,66 38,66 31,44" fill="#222"/><path d="M50 30V6M69 44 92 37M62 66 76 86M38 66 24 86M31 44 8 37" stroke="#222" stroke-width="4"/></svg>';
+function $(id) { return document.getElementById(id); }
+
+var jogando = false, defesas = 0, sofridos = 0, fimEm = 0, inicio = 0, relogio = null;
+var bolas = [], ultimo = 0, proximaBola = 0, timerAviso = null;
+var frasesSofrido = ["Quase! Na próxima você pega!", "Passou! Fique de olho!", "Tudo bem, continue!"];
+
+document.addEventListener("dblclick", function (e) { e.preventDefault(); });
+
+function enviarResultado(pontos) {
+  try {
+    parent.postMessage({tipo: "fim_de_jogo", id: CONFIG.id, modo: CONFIG.modo, nome: CONFIG.nome, pontos: pontos}, "*");
+  } catch (e) {}
+}
+
+function sortear(lista) { return lista[Math.floor(Math.random() * lista.length)]; }
+function largura() { return $("campo").clientWidth; }
+function linhaDoGol() { return $("campo").clientHeight - 48; }
+
+function avisar(texto) {
+  $("aviso").textContent = texto;
+  clearTimeout(timerAviso);
+  timerAviso = setTimeout(function () { $("aviso").textContent = ""; }, 900);
+}
+
+function efeito(texto, x, y) {
+  var e = document.createElement("div");
+  e.className = "efeito";
+  e.textContent = texto;
+  e.style.left = (x + 10) + "px"; e.style.top = (y + 10) + "px";
+  $("campo").appendChild(e);
+  setTimeout(function () { e.remove(); }, 650);
+}
+
+// A velocidade cresce devagar com o tempo
+function velocidade() {
+  var segundos = (Date.now() - inicio) / 1000;
+  return Math.min(260, 95 + segundos * 3.5);
+}
+
+function criarBola() {
+  var W = largura(), lado = Math.random(), x, y;
+  // A bola nasce no alto ou num dos lados
+  if (lado < 0.6) { x = Math.random() * (W - TAMANHO); y = -TAMANHO / 2; }
+  else if (lado < 0.8) { x = -TAMANHO / 2; y = Math.random() * linhaDoGol() * 0.35; }
+  else { x = W - TAMANHO / 2; y = Math.random() * linhaDoGol() * 0.35; }
+  // E vai para um ponto do gol
+  var alvoX = W * 0.1 + Math.random() * (W * 0.8 - TAMANHO);
+  var alvoY = linhaDoGol();
+  var dx = alvoX - x, dy = alvoY - y, d = Math.sqrt(dx * dx + dy * dy) || 1;
+  var v = velocidade();
+  var el = document.createElement("div");
+  el.className = "bola";
+  el.innerHTML = DESENHO_BOLA;
+  var b = {el: el, x: x, y: y, vx: dx / d * v, vy: dy / d * v, viva: true};
+  el.addEventListener("pointerdown", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!jogando || !b.viva) return;
+    b.viva = false;
+    defesas++;
+    $("defesas").textContent = defesas;
+    efeito("🧤", b.x, b.y);
+    el.remove();
+  });
+  $("campo").appendChild(el);
+  bolas.push(b);
+  posicionar(b);
+}
+
+function posicionar(b) {
+  b.el.style.transform = "translate(" + b.x + "px," + b.y + "px)";
+}
+
+function passo(agora) {
+  if (!jogando) return;
+  var dt = Math.min(0.035, (agora - ultimo) / 1000 || 0);
+  ultimo = agora;
+  if (agora >= proximaBola) {
+    criarBola();
+    var segundos = (Date.now() - inicio) / 1000;
+    proximaBola = agora + Math.max(550, 1200 - segundos * 15);
+  }
+  var linha = linhaDoGol();
+  for (var i = bolas.length - 1; i >= 0; i--) {
+    var b = bolas[i];
+    if (!b.viva) { bolas.splice(i, 1); continue; }
+    b.x += b.vx * dt;
+    b.y += b.vy * dt;
+    if (b.y + TAMANHO / 2 >= linha) {
+      // A bola passou da linha: gol sofrido
+      b.viva = false;
+      b.el.remove();
+      bolas.splice(i, 1);
+      sofridos++;
+      $("sofridos").textContent = sofridos;
+      avisar(sortear(frasesSofrido));
+      continue;
+    }
+    posicionar(b);
+  }
+  requestAnimationFrame(passo);
+}
+
+function limparBolas() {
+  for (var i = 0; i < bolas.length; i++) bolas[i].el.remove();
+  bolas = [];
+}
+
+function comecar() {
+  defesas = 0; sofridos = 0; jogando = true;
+  limparBolas();
+  $("defesas").textContent = "0"; $("sofridos").textContent = "0"; $("aviso").textContent = "";
+  $("inicio").classList.add("escondido");
+  $("fim").classList.add("escondido");
+  inicio = Date.now();
+  ultimo = performance.now();
+  proximaBola = ultimo + 400;
+  requestAnimationFrame(passo);
+  fimEm = inicio + DURACAO * 1000;
+  clearInterval(relogio);
+  relogio = setInterval(function () {
+    var resta = Math.max(0, Math.ceil((fimEm - Date.now()) / 1000));
+    $("tempo").textContent = resta;
+    if (resta <= 0) terminar();
+  }, 100);
+}
+
+function terminar() {
+  clearInterval(relogio);
+  jogando = false;
+  limparBolas();
+  // Aura de 0 a 50: 1,5 ponto por defesa, no máximo 50
+  var pontos = CONFIG.modo === "campeao" ? Math.min(50, Math.round(defesas * 1.5)) : 0;
+  $("resultado").textContent = "Defesas: " + defesas + " 🧤  |  Gols sofridos: " + sofridos + " 🥅";
+  $("aura").textContent = (pontos > 0 && CONFIG.id) ? "✨ +" + pontos + " de aura! ✨" : "Goleiro bom treina muito. Bora de novo!";
+  $("fim").classList.remove("escondido");
+  var botao = $("denovo");
+  botao.disabled = true;
+  setTimeout(function () { botao.disabled = false; }, 900);
+  enviarResultado(pontos);
+}
+
+$("jogar").addEventListener("pointerdown", function (e) { e.preventDefault(); comecar(); });
+$("denovo").addEventListener("pointerdown", function (e) { e.preventDefault(); if (!this.disabled) comecar(); });
+</script>
+</body>
+</html>

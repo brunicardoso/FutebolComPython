@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pênalti</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+html,body{height:100%}
+body{background:#0f6b2f;font-family:system-ui,"Segoe UI",Roboto,Arial,sans-serif;color:#13213c;display:flex;justify-content:center;overflow:hidden}
+#app{position:relative;width:100%;max-width:520px;height:100%;max-height:560px;min-height:400px;display:flex;flex-direction:column;background:linear-gradient(#5ec8f5 0,#a7e2fb 34%,#43a047 34%,#2e8b3a 100%);overflow:hidden}
+.barra{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;font-weight:800;font-size:22px;background:#ffffffcc;z-index:5}
+.tela{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:20px;background:#fff8e1f2;z-index:20}
+.tela h1{font-size:38px;color:#1b5e20}
+.tela p{font-size:20px;max-width:420px;line-height:1.35}
+.grande{font-size:64px}
+.escondido{display:none!important}
+.botao{min-height:60px;min-width:180px;padding:12px 30px;font-size:26px;font-weight:900;border:0;border-radius:999px;background:#ffd600;color:#13213c;box-shadow:0 6px 0 #c79f00;cursor:pointer;font-family:inherit}
+.botao:active{transform:translateY(4px);box-shadow:0 2px 0 #c79f00}
+.botao:disabled{opacity:.5}
+#campo{position:relative;flex:1}
+#gol{position:absolute;left:4%;right:4%;top:5%;height:50%;border:8px solid #fff;border-bottom:0;border-radius:6px 6px 0 0;background:repeating-linear-gradient(0deg,#ffffff40 0 2px,transparent 2px 18px),repeating-linear-gradient(90deg,#ffffff40 0 2px,transparent 2px 18px),#1b5e2055;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr)}
+.zona{border:2px dashed #ffffffaa;background:transparent;color:#ffffffdd;font-size:28px;font-weight:900;min-height:48px;cursor:pointer;font-family:inherit}
+.zona:active{background:#ffffff55}
+#goleiro{position:absolute;width:33.3%;height:50%;left:33.3%;top:50%;display:flex;justify-content:center;align-items:flex-end;pointer-events:none;transition:left .35s ease-out,top .35s ease-out,transform .35s ease-out;z-index:2}
+#goleiro svg{height:100%;width:auto}
+#marca{position:absolute;left:calc(50% - 8px);top:84%;width:16px;height:8px;border-radius:50%;background:#fff}
+#bola{position:absolute;left:calc(50% - 24px);top:74%;width:48px;height:48px;pointer-events:none;z-index:3;transition:left .4s ease-out,top .4s ease-out,width .4s,height .4s}
+#bola svg{width:100%;height:100%}
+#aviso{position:absolute;left:0;right:0;bottom:3%;text-align:center;font-size:34px;font-weight:900;color:#fff;text-shadow:0 3px 0 #0007;pointer-events:none}
+#aviso small{display:block;font-size:20px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="barra"><span>⏱️ <span id="tempo">45</span>s</span><span>⚽ Gols: <span id="placar">0</span></span></div>
+  <div id="campo">
+    <div id="gol">
+      <button class="zona" data-z="0">↖</button><button class="zona" data-z="1">⬆</button><button class="zona" data-z="2">↗</button>
+      <button class="zona" data-z="3">↙</button><button class="zona" data-z="4">⬇</button><button class="zona" data-z="5">↘</button>
+      <div id="goleiro">
+        <!-- goleiro genérico desenhado com formas simples -->
+        <svg viewBox="0 0 60 90"><circle cx="30" cy="14" r="11" fill="#ffcc80"/><rect x="16" y="26" width="28" height="32" rx="8" fill="#ff7043"/><rect x="2" y="28" width="16" height="9" rx="4" fill="#ff7043"/><rect x="42" y="28" width="16" height="9" rx="4" fill="#ff7043"/><circle cx="4" cy="32" r="6" fill="#fdd835"/><circle cx="56" cy="32" r="6" fill="#fdd835"/><rect x="18" y="58" width="10" height="28" rx="4" fill="#37474f"/><rect x="32" y="58" width="10" height="28" rx="4" fill="#37474f"/></svg>
+      </div>
+    </div>
+    <div id="marca"></div>
+    <div id="bola"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#fff" stroke="#222" stroke-width="4"/><polygon points="50,30 69,44 62,66 38,66 31,44" fill="#222"/><path d="M50 30V6M69 44 92 37M62 66 76 86M38 66 24 86M31 44 8 37" stroke="#222" stroke-width="4"/></svg></div>
+    <div id="aviso"></div>
+  </div>
+
+  <div id="inicio" class="tela">
+    <div class="grande">🥅⚽</div>
+    <h1>Pênalti</h1>
+    <p>Toque num cantinho do gol para chutar. Faça o máximo de gols em 45 segundos!</p>
+    <button class="botao" id="jogar">Jogar</button>
+  </div>
+
+  <div id="fim" class="tela escondido">
+    <div class="grande">🏆</div>
+    <h1>Fim de jogo!</h1>
+    <p id="resultado"></p>
+    <p id="aura"></p>
+    <button class="botao" id="denovo">Jogar de novo</button>
+  </div>
+</div>
+<script>
+// Configuração enviada pelo notebook (ou valores padrão se abrir sozinho)
+var CONFIG = window.CONFIG || {modo: "campeao", dica: "", id: "", nome: "penalti"};
+var DURACAO = 45;
+function $(id) { return document.getElementById(id); }
+
+var jogando = false, travado = false, gols = 0, chutes = 0, fimEm = 0, relogio = null;
+var frasesGol = ["GOOOL!", "GOLAÇO!", "GOOOL! Que chute!"];
+var frasesDefesa = ["Quase!", "Na próxima entra!", "Continue tentando!"];
+
+// Evita zoom com toque duplo
+document.addEventListener("dblclick", function (e) { e.preventDefault(); });
+
+function enviarResultado(pontos) {
+  try {
+    parent.postMessage({tipo: "fim_de_jogo", id: CONFIG.id, modo: CONFIG.modo, nome: CONFIG.nome, pontos: pontos}, "*");
+  } catch (e) {}
+}
+
+function sortear(lista) { return lista[Math.floor(Math.random() * lista.length)]; }
+
+function posicionarGoleiro(z, girar) {
+  var g = $("goleiro");
+  if (z === null) {
+    g.style.left = "33.3%"; g.style.top = "50%"; g.style.transform = "none";
+    return;
+  }
+  var col = z % 3, lin = Math.floor(z / 3);
+  g.style.left = (col * 33.3) + "%";
+  g.style.top = (lin * 50) + "%";
+  var ang = col === 0 ? -50 : (col === 2 ? 50 : 0);
+  g.style.transform = girar ? "rotate(" + ang + "deg)" : "none";
+}
+
+function voltarBola() {
+  var b = $("bola");
+  b.style.transition = "none";
+  b.style.left = "calc(50% - 24px)"; b.style.top = "74%";
+  b.style.width = "48px"; b.style.height = "48px";
+  void b.offsetWidth;
+  b.style.transition = "";
+}
+
+function chutar(z) {
+  if (!jogando || travado) return;
+  travado = true;
+  chutes++;
+  // A bola vai até o meio da zona escolhida
+  var campo = $("campo").getBoundingClientRect();
+  var alvo = document.querySelector('.zona[data-z="' + z + '"]').getBoundingClientRect();
+  var b = $("bola");
+  b.style.width = "34px"; b.style.height = "34px";
+  b.style.left = (alvo.left - campo.left + alvo.width / 2 - 17) + "px";
+  b.style.top = (alvo.top - campo.top + alvo.height / 2 - 17) + "px";
+  // O goleiro pula para um lugar sorteado
+  var pulo = Math.floor(Math.random() * 6);
+  posicionarGoleiro(pulo, true);
+  setTimeout(function () {
+    if (!jogando) return;
+    if (pulo !== z) {
+      gols++;
+      $("placar").textContent = gols;
+      $("aviso").innerHTML = sortear(frasesGol) + " 🎉";
+    } else {
+      $("aviso").innerHTML = "O goleiro pegou! 🧤<small>" + sortear(frasesDefesa) + "</small>";
+    }
+  }, 420);
+  setTimeout(function () {
+    if (!jogando) return;
+    $("aviso").innerHTML = "";
+    voltarBola();
+    posicionarGoleiro(null, false);
+    travado = false;
+  }, 1300);
+}
+
+function comecar() {
+  gols = 0; chutes = 0; travado = false; jogando = true;
+  $("placar").textContent = "0";
+  $("aviso").innerHTML = "";
+  voltarBola(); posicionarGoleiro(null, false);
+  $("inicio").classList.add("escondido");
+  $("fim").classList.add("escondido");
+  fimEm = Date.now() + DURACAO * 1000;
+  clearInterval(relogio);
+  relogio = setInterval(function () {
+    var resta = Math.max(0, Math.ceil((fimEm - Date.now()) / 1000));
+    $("tempo").textContent = resta;
+    if (resta <= 0) terminar();
+  }, 100);
+}
+
+function terminar() {
+  clearInterval(relogio);
+  jogando = false;
+  // Aura de 0 a 50: 3 pontos por gol, no máximo 50
+  var pontos = CONFIG.modo === "campeao" ? Math.min(50, gols * 3) : 0;
+  $("resultado").textContent = "Você fez " + gols + (gols === 1 ? " gol" : " gols") + " em " + chutes + (chutes === 1 ? " chute" : " chutes") + "!";
+  $("aura").textContent = (pontos > 0 && CONFIG.id) ? "✨ +" + pontos + " de aura! ✨" : "Cada chute é treino. Bora de novo!";
+  $("fim").classList.remove("escondido");
+  var botao = $("denovo");
+  botao.disabled = true;
+  setTimeout(function () { botao.disabled = false; }, 900);
+  enviarResultado(pontos);
+}
+
+var zonas = document.querySelectorAll(".zona");
+for (var i = 0; i < zonas.length; i++) {
+  zonas[i].addEventListener("pointerdown", function (e) {
+    e.preventDefault();
+    chutar(parseInt(this.getAttribute("data-z"), 10));
+  });
+}
+$("jogar").addEventListener("pointerdown", function (e) { e.preventDefault(); comecar(); });
+$("denovo").addEventListener("pointerdown", function (e) { e.preventDefault(); if (!this.disabled) comecar(); });
+</script>
+</body>
+</html>

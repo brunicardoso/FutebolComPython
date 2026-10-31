@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Embaixadinhas</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+html,body{height:100%}
+body{background:#0d47a1;font-family:system-ui,"Segoe UI",Roboto,Arial,sans-serif;color:#13213c;display:flex;justify-content:center;overflow:hidden}
+#app{position:relative;width:100%;max-width:520px;height:100%;max-height:560px;min-height:400px;display:flex;flex-direction:column;background:linear-gradient(#7fd3ff 0,#c9efff 70%,#4caf50 70%,#388e3c 100%);overflow:hidden}
+.barra{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;font-weight:800;font-size:20px;background:#ffffffcc;z-index:5}
+.tela{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:20px;background:#fff8e1f2;z-index:20}
+.tela h1{font-size:38px;color:#0d47a1}
+.tela p{font-size:20px;max-width:420px;line-height:1.35}
+.grande{font-size:64px}
+.escondido{display:none!important}
+.botao{min-height:60px;min-width:180px;padding:12px 30px;font-size:26px;font-weight:900;border:0;border-radius:999px;background:#ffd600;color:#13213c;box-shadow:0 6px 0 #c79f00;cursor:pointer;font-family:inherit}
+.botao:active{transform:translateY(4px);box-shadow:0 2px 0 #c79f00}
+.botao:disabled{opacity:.5}
+#campo{position:relative;flex:1;touch-action:none;cursor:pointer}
+#chao{position:absolute;left:0;right:0;bottom:0;height:10px;background:#2e7d32}
+#bola{position:absolute;left:0;top:0;width:64px;height:64px;pointer-events:none;will-change:transform}
+#bola svg{width:100%;height:100%}
+#aviso{position:absolute;left:0;right:0;top:12px;text-align:center;font-size:30px;font-weight:900;color:#0d47a1;text-shadow:0 2px 0 #fff;pointer-events:none}
+#toque{position:absolute;width:40px;height:40px;border-radius:50%;border:4px solid #ffd600;pointer-events:none;opacity:0;transition:opacity .3s,transform .3s}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="barra"><span>⏱️ <span id="tempo">45</span>s</span><span>🦶 <span id="placar">0</span></span><span>⭐ Recorde: <span id="recorde">0</span></span></div>
+  <div id="campo">
+    <div id="chao"></div>
+    <div id="toque"></div>
+    <div id="bola"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#fff" stroke="#222" stroke-width="4"/><polygon points="50,30 69,44 62,66 38,66 31,44" fill="#222"/><path d="M50 30V6M69 44 92 37M62 66 76 86M38 66 24 86M31 44 8 37" stroke="#222" stroke-width="4"/></svg></div>
+    <div id="aviso"></div>
+  </div>
+
+  <div id="inicio" class="tela">
+    <div class="grande">🦶⚽</div>
+    <h1>Embaixadinhas</h1>
+    <p>Toque na bola para ela não cair no chão. Quantas seguidas você consegue?</p>
+    <button class="botao" id="jogar">Jogar</button>
+  </div>
+
+  <div id="fim" class="tela escondido">
+    <div class="grande">🏆</div>
+    <h1>Fim de jogo!</h1>
+    <p id="resultado"></p>
+    <p id="aura"></p>
+    <button class="botao" id="denovo">Jogar de novo</button>
+  </div>
+</div>
+<script>
+// Configuração enviada pelo notebook (ou valores padrão se abrir sozinho)
+var CONFIG = window.CONFIG || {modo: "campeao", dica: "", id: "", nome: "embaixadinhas"};
+var DURACAO = 45;
+var TAMANHO = 64;          // tamanho da bola em pixels
+var ALCANCE = 72;          // distância do centro da bola que ainda conta como toque
+var GRAVIDADE = 850;       // pixels por segundo ao quadrado
+var CHUTE = -580;          // velocidade para cima depois do toque
+function $(id) { return document.getElementById(id); }
+
+var jogando = false, caida = false, toques = 0, recorde = 0, fimEm = 0, relogio = null, ultimo = 0;
+var x = 0, y = 0, vx = 0, vy = 0;
+var frasesQueda = ["Caiu! Tente de novo!", "Quase! Bora de novo!", "Na próxima vai mais longe!"];
+var frasesBoas = ["Isso!", "Boa!", "Que controle!", "Craque!"];
+
+document.addEventListener("dblclick", function (e) { e.preventDefault(); });
+
+function enviarResultado(pontos) {
+  try {
+    parent.postMessage({tipo: "fim_de_jogo", id: CONFIG.id, modo: CONFIG.modo, nome: CONFIG.nome, pontos: pontos}, "*");
+  } catch (e) {}
+}
+
+function sortear(lista) { return lista[Math.floor(Math.random() * lista.length)]; }
+function largura() { return $("campo").clientWidth; }
+function altura() { return $("campo").clientHeight - 10; }
+
+function novaBola() {
+  x = largura() / 2 - TAMANHO / 2;
+  y = altura() * 0.25;
+  vx = (Math.random() - 0.5) * 80;
+  vy = -350;
+  caida = false;
+  desenhar();
+}
+
+function desenhar() {
+  $("bola").style.transform = "translate(" + x + "px," + y + "px) rotate(" + (x * 2) + "deg)";
+}
+
+function passo(agora) {
+  if (!jogando) return;
+  var dt = Math.min(0.035, (agora - ultimo) / 1000 || 0);
+  ultimo = agora;
+  if (!caida) {
+    vy += GRAVIDADE * dt;
+    x += vx * dt;
+    y += vy * dt;
+    // Bate nas paredes dos lados e volta
+    if (x < 0) { x = 0; vx = Math.abs(vx); }
+    if (x > largura() - TAMANHO) { x = largura() - TAMANHO; vx = -Math.abs(vx); }
+    if (y < 0) { y = 0; vy = Math.abs(vy) * 0.3; }
+    // Encostou no chão: a sequência volta para zero
+    if (y >= altura() - TAMANHO) {
+      y = altura() - TAMANHO;
+      caida = true;
+      toques = 0;
+      $("placar").textContent = "0";
+      $("aviso").textContent = sortear(frasesQueda);
+      setTimeout(function () { if (jogando) { $("aviso").textContent = ""; novaBola(); } }, 700);
+    }
+    desenhar();
+  }
+  requestAnimationFrame(passo);
+}
+
+function tocar(e) {
+  e.preventDefault();
+  if (!jogando || caida) return;
+  var r = $("campo").getBoundingClientRect();
+  var px = e.clientX - r.left, py = e.clientY - r.top;
+  var cx = x + TAMANHO / 2, cy = y + TAMANHO / 2;
+  var dx = cx - px, dy = cy - py;
+  if (dx * dx + dy * dy > ALCANCE * ALCANCE) return;
+  // Chuta para cima, com um desvio para o lado
+  vy = CHUTE;
+  vx = Math.max(-220, Math.min(220, dx * 4 + (Math.random() - 0.5) * 140));
+  toques++;
+  if (toques > recorde) { recorde = toques; $("recorde").textContent = recorde; }
+  $("placar").textContent = toques;
+  if (toques % 5 === 0) $("aviso").textContent = sortear(frasesBoas) + " " + toques + "! 🔥";
+  else $("aviso").textContent = "";
+  var t = $("toque");
+  t.style.transition = "none";
+  t.style.left = (px - 20) + "px"; t.style.top = (py - 20) + "px";
+  t.style.opacity = "1"; t.style.transform = "scale(1)";
+  void t.offsetWidth;
+  t.style.transition = "";
+  t.style.opacity = "0"; t.style.transform = "scale(1.8)";
+}
+
+function comecar() {
+  toques = 0; recorde = 0; jogando = true;
+  $("placar").textContent = "0"; $("recorde").textContent = "0"; $("aviso").textContent = "";
+  $("inicio").classList.add("escondido");
+  $("fim").classList.add("escondido");
+  novaBola();
+  ultimo = performance.now();
+  requestAnimationFrame(passo);
+  fimEm = Date.now() + DURACAO * 1000;
+  clearInterval(relogio);
+  relogio = setInterval(function () {
+    var resta = Math.max(0, Math.ceil((fimEm - Date.now()) / 1000));
+    $("tempo").textContent = resta;
+    if (resta <= 0) terminar();
+  }, 100);
+}
+
+function terminar() {
+  clearInterval(relogio);
+  jogando = false;
+  // Aura de 0 a 50: 4 pontos por toque do recorde, no máximo 50
+  var pontos = CONFIG.modo === "campeao" ? Math.min(50, recorde * 4) : 0;
+  $("resultado").textContent = "Seu recorde foi " + recorde + (recorde === 1 ? " embaixadinha!" : " embaixadinhas seguidas!");
+  $("aura").textContent = (pontos > 0 && CONFIG.id) ? "✨ +" + pontos + " de aura! ✨" : "Todo craque começa assim. Bora de novo!";
+  $("fim").classList.remove("escondido");
+  var botao = $("denovo");
+  botao.disabled = true;
+  setTimeout(function () { botao.disabled = false; }, 900);
+  enviarResultado(pontos);
+}
+
+$("campo").addEventListener("pointerdown", tocar);
+$("jogar").addEventListener("pointerdown", function (e) { e.preventDefault(); comecar(); });
+$("denovo").addEventListener("pointerdown", function (e) { e.preventDefault(); if (!this.disabled) comecar(); });
+</script>
+</body>
+</html>

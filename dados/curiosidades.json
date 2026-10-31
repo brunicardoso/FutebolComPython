@@ -1,0 +1,60 @@
+{
+  "_leia_me": "Toda curiosidade precisa ser verdadeira, ter fonte e data de verificação. Chaves = IDs do Transfermarkt. Confira com: pixi run verificar-curiosidades",
+  "jogadores": {
+    "937958": {
+      "nome": "Lamine Yamal",
+      "wikipedia_pt": "https://pt.wikipedia.org/wiki/Lamine_Yamal",
+      "curiosidades": [
+        {"texto": "Lamine Yamal estreou no time principal do Barcelona em 2023, com apenas 15 anos e 87 dias.",
+         "fonte": "https://pt.wikipedia.org/wiki/Lamine_Yamal", "verificado_em": "2026-10-31"},
+        {"texto": "Na Eurocopa de 2024, Lamine Yamal virou o jogador mais jovem a marcar um gol no torneio, com 16 anos e 362 dias.",
+         "fonte": "https://pt.wikipedia.org/wiki/Lamine_Yamal", "verificado_em": "2026-10-31"}
+      ]
+    },
+    "1168219": {
+      "nome": "Said El Mala",
+      "wikipedia_pt": "https://pt.wikipedia.org/wiki/Said_El_Mala",
+      "curiosidades": [
+        {"texto": "Said El Mala marcou seu primeiro gol na Bundesliga em 31 de agosto de 2025, numa vitória do Colônia por 4 a 1.",
+         "fonte": "https://pt.wikipedia.org/wiki/Said_El_Mala", "verificado_em": "2026-10-31"}
+      ]
+    },
+    "955357": {"nome": "Junior Kroupi", "wikipedia_pt": "https://pt.wikipedia.org/wiki/Eli_Junior_Kroupi", "curiosidades": []},
+    "1390649": {"nome": "Yan Diomande", "wikipedia_pt": "https://pt.wikipedia.org/wiki/Yan_Diomande", "curiosidades": []},
+    "1063338": {"nome": "Carlos Espí", "wikipedia_pt": "https://pt.wikipedia.org/wiki/Carlos_Esp%C3%AD", "curiosidades": []},
+    "845654": {
+      "nome": "Kenan Yıldız",
+      "wikipedia_pt": "https://pt.wikipedia.org/wiki/Kenan_Y%C4%B1ld%C4%B1z",
+      "curiosidades": [
+        {"texto": "Kenan Yıldız estreou no time profissional da Juventus em 20 de agosto de 2023, contra a Udinese.",
+         "fonte": "https://pt.wikipedia.org/wiki/Kenan_Y%C4%B1ld%C4%B1z", "verificado_em": "2026-10-31"}
+      ]
+    },
+    "971570": {
+      "nome": "Endrick",
+      "wikipedia_pt": "https://pt.wikipedia.org/wiki/Endrick",
+      "curiosidades": [
+        {"texto": "Endrick é o jogador mais jovem da história do Palmeiras a marcar um gol como profissional.",
+         "fonte": "https://pt.wikipedia.org/wiki/Endrick", "verificado_em": "2026-10-31"}
+      ]
+    },
+    "132098": {
+      "nome": "Harry Kane",
+      "wikipedia_pt": "https://pt.wikipedia.org/wiki/Harry_Kane",
+      "curiosidades": [
+        {"texto": "Harry Kane é o maior artilheiro da história da seleção da Inglaterra: em 2023 ele passou Wayne Rooney.",
+         "fonte": "https://pt.wikipedia.org/wiki/Harry_Kane", "verificado_em": "2026-10-31"}
+      ]
+    }
+  },
+  "clubes": {
+    "131": {
+      "nome": "Barcelona",
+      "wikipedia_pt": "https://pt.wikipedia.org/wiki/Futbol_Club_Barcelona",
+      "curiosidades": [
+        {"texto": "O Barcelona foi fundado em 1899 e joga no Camp Nou, que tem lugar para 99.535 pessoas.",
+         "fonte": "https://pt.wikipedia.org/wiki/Futbol_Club_Barcelona", "verificado_em": "2026-10-31"}
+      ]
+    }
+  }
+}

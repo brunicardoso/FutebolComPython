@@ -1,0 +1,97 @@
+club_id,clube,liga,estadio,lugares
+1108,Alavés,La Liga,Mendizorroza,19840
+1420,Angers,Ligue 1,Stade Raymond-Kopa,19350
+11,Arsenal,Premier League,Emirates Stadium,60704
+405,Aston Villa,Premier League,Villa Park,43205
+800,Atalanta,Serie A,New Balance Arena - Bergamo,24950
+621,Athletic Bilbao,La Liga,San Mamés,53289
+13,Atlético de Madrid,La Liga,Riyadh Air Metropolitano,70460
+167,Augsburg,Bundesliga,WWK ARENA,30660
+290,Auxerre,Ligue 1,Stade de l'Abbé-Deschamps,18541
+131,Barcelona,La Liga,Spotify Camp Nou,62657
+15,Bayer Leverkusen,Bundesliga,BayArena,30210
+27,Bayern de Munique,Bundesliga,Allianz Arena,75000
+1025,Bologna,Serie A,Stadio Renato Dall’Ara,36462
+16,Borussia Dortmund,Bundesliga,SIGNAL IDUNA PARK,81365
+18,Borussia Mönchengladbach,Bundesliga,Stadion im Borussia-Park,54042
+989,Bournemouth,Premier League,Vitality Stadium,11307
+1148,Brentford,Premier League,Gtech Community Stadium,17250
+3911,Brest,Ligue 1,Stade Francis-Le Blé,15220
+1237,Brighton,Premier League,AMEX Stadium,31876
+1132,Burnley,Premier League,Turf Moor,21994
+1390,Cagliari,Serie A,Unipol Domus,16416
+940,Celta de Vigo,La Liga,Abanca Balaídos,22803
+631,Chelsea,Premier League,Stamford Bridge,41631
+3,Colônia,Bundesliga,RheinEnergieSTADION,50000
+1047,Como,Serie A,Giuseppe Sinigaglia,12039
+2239,Cremonese,Serie A,Giovanni Zini,16003
+873,Crystal Palace,Premier League,Selhurst Park,25486
+24,Eintracht Frankfurt,Bundesliga,Deutsche Bank Park,59500
+1531,Elche,La Liga,Manuel Martínez Valero,31388
+714,Espanyol,La Liga,RCDE Stadium,37776
+29,Everton,Premier League,Hill Dickinson Stadium,52769
+430,Fiorentina,Serie A,Artemio Franchi,43147
+60,Freiburg,Bundesliga,Europa-Park Stadion,34700
+931,Fulham,Premier League,Craven Cottage,29589
+252,Genoa,Serie A,Luigi Ferraris,34901
+3709,Getafe,La Liga,Coliseum,16800
+12321,Girona,La Liga,Montilivi,14624
+41,Hamburgo,Bundesliga,Volksparkstadion,57000
+2036,Heidenheim,Bundesliga,Voith-Arena,15000
+276,Hellas Verona,Serie A,Marcantonio Bentegodi,39211
+533,Hoffenheim,Bundesliga,PreZero Arena,30150
+46,Inter de Milão,Serie A,Giuseppe Meazza,75923
+506,Juventus,Serie A,Allianz Stadium,41507
+398,Lazio,Serie A,Olimpico di Roma,70634
+738,Le Havre,Ligue 1,Stade Océane,25178
+1005,Lecce,Serie A,Ettore Giardiniero,31559
+399,Leeds United,Premier League,Elland Road,37890
+826,Lens,Ligue 1,Stade Bollaert-Delelis,38223
+3368,Levante,La Liga,Ciutat de València,26354
+1082,Lille,Ligue 1,Decathlon Arena-Stade Pierre-Mauroy,50186
+31,Liverpool,Premier League,Anfield,61276
+1158,Lorient,Ligue 1,Stade du Moustoir,16787
+1041,Lyon,Ligue 1,Groupama Stadium,59186
+39,Mainz,Bundesliga,Mewa Arena,33305
+237,Mallorca,La Liga,Mallorca Son Moix,25736
+281,Manchester City,Premier League,Etihad Stadium,61000
+985,Manchester United,Premier League,Old Trafford,74879
+347,Metz,Ligue 1,Stade Saint-Symphorien,28786
+5,Milan,Serie A,Giuseppe Meazza,75923
+162,Monaco,Ligue 1,Stade Louis-II,18525
+995,Nantes,Ligue 1,Stade de la Beaujoire,35322
+6195,Napoli,Serie A,Diego Armando Maradona,54726
+762,Newcastle,Premier League,St James' Park,52258
+417,Nice,Ligue 1,Allianz Riviera,36178
+703,Nottingham Forest,Premier League,The City Ground,30404
+244,Olympique de Marselha,Ligue 1,Orange Vélodrome,67394
+331,Osasuna,La Liga,El Sadar,23576
+583,PSG,Ligue 1,Parc des Princes,48583
+10004,Paris FC,Ligue 1,Stade Jean Bouin,19904
+130,Parma,Serie A,Ennio Tardini,22352
+4172,Pisa,Serie A,Cetilar® Arena,12508
+23826,RB Leipzig,Bundesliga,Red Bull Arena,47069
+367,Rayo Vallecano,La Liga,Estadio de Vallecas,14708
+150,Real Betis,La Liga,La Cartuja,71374
+418,Real Madrid,La Liga,Santiago Bernabéu,83186
+2497,Real Oviedo,La Liga,Carlos Tartiere,30500
+681,Real Sociedad,La Liga,Anoeta,40000
+273,Rennes,Ligue 1,Roazhon Park,29778
+12,Roma,Serie A,Olimpico di Roma,70634
+6574,Sassuolo,Serie A,Mapei Stadium - Città del Tricolore,21584
+368,Sevilla,La Liga,Ramón Sánchez-Pizjuán,43883
+35,St. Pauli,Bundesliga,Millerntor-Stadion,29546
+667,Strasbourg,Ligue 1,Stade de la Meinau,32000
+79,Stuttgart,Bundesliga,MHPArena Stuttgart,60449
+289,Sunderland,Premier League,Stadium of Light,48707
+416,Torino,Serie A,Olimpico Grande Torino,28177
+148,Tottenham,Premier League,Tottenham Hotspur Stadium,62850
+415,Toulouse,Ligue 1,Stadium Municipal,33150
+410,Udinese,Serie A,Bluenergy Stadium,25144
+89,Union Berlin,Bundesliga,Stadion An der Alten Försterei,22012
+1049,Valencia,La Liga,Mestalla,49430
+1050,Villarreal,La Liga,La Cerámica,23500
+86,Werder Bremen,Bundesliga,Weserstadion,41800
+379,West Ham,Premier League,London Stadium,62500
+82,Wolfsburg,Bundesliga,Volkswagen Arena,28917
+543,Wolverhampton,Premier League,Molineux Stadium,31750
