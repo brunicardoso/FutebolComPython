@@ -177,7 +177,7 @@ def checar(resposta, missao: str = "m1") -> bool:
             exibir(caixa(f"🏆 Você subiu de nível: <b>{resultado.subiu_para}</b>!",
                          cor="#f57f17", fundo="#fffde7", tamanho="1.3em"))
             exibir(_barra_aura())
-        _mostrar_empate_e_escrita(resposta, m)
+        _mostrar_empate(m)
         _desbloquear(m.desbloqueia)
         _checar_67(_estado.total, f"total:{_estado.total}")
         return True
@@ -191,17 +191,19 @@ def checar(resposta, missao: str = "m1") -> bool:
         return False
     perto = _numero_perto(resposta, m)
     reacoes.mostrar("quase" if perto else "beta")
-    exibir(caixa(f"💡 <b>Dica:</b> {escapar(m.dica)}<br>🔁 Tente de novo!",
-                 cor="#0d47a1", fundo="#e3f2fd"))
+    if missoes.quase_escrito(resposta, m):
+        exibir(caixa("✍️ <b>Quase!</b> O nome está <i>quase</i> certo. No código, cada letra conta: "
+                     "compare com a tabela, letra por letra (sem ponto, aspas ou números).<br>"
+                     "🔁 Tente de novo!", cor="#0d47a1", fundo="#e3f2fd"))
+    else:
+        exibir(caixa(f"💡 <b>Dica:</b> {escapar(m.dica)}<br>🔁 Tente de novo!",
+                     cor="#0d47a1", fundo="#e3f2fd"))
     if erros == 1:  # o treino rápido aparece só no primeiro erro de cada missão
         exibir(_jogos.html_jogo("treino_rapido", modo="treino", dica=m.dica))
     return False
 
 
-def _mostrar_empate_e_escrita(resposta, m: missoes.Missao) -> None:
-    certo = missoes.escrita_certa(resposta, m)
-    if certo:
-        exibir(caixa(f"✍️ Valeu! O nome escrito certinho é <b>{escapar(certo)}</b>.", tamanho="1em"))
+def _mostrar_empate(m: missoes.Missao) -> None:
     nomes = missoes.empatados(m)
     if len(nomes) > 1:
         lista = " e ".join(escapar(n) for n in nomes) if len(nomes) == 2 else ", ".join(escapar(n) for n in nomes)

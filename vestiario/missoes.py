@@ -55,33 +55,29 @@ def normalizar(texto: str) -> str:
 
 
 def _palavras(texto: str) -> list[str]:
-    """Só as palavras de um nome: sem pontuação, aspas nem números soltos
-    ('93 Bruno Fernandes.' vira ['bruno', 'fernandes'])."""
-    limpo = re.sub(r"[^\w\s-]", " ", normalizar(texto)).replace("-", " ").replace("_", " ")
+    """Só as palavras (sem pontuação nem números). Usado apenas para a dica de escrita."""
+    limpo = re.sub(r"[^\w\s]", " ", normalizar(texto)).replace("_", " ")
     return [p for p in limpo.split() if not p.isdigit()]
 
 
-def _parecido(a: str, b: str, minimo: float) -> bool:
-    return difflib.SequenceMatcher(None, a, b).ratio() >= minimo
-
-
 def nomes_iguais(resposta: str, esperado: str, parcial: bool = False) -> bool:
-    """Compara nomes com paciência: ignora acentos, pontuação, ordem das palavras,
-    iniciais ('B. Fernandes') e um errinho de digitação ('Fernandez')."""
-    r, e = _palavras(resposta), _palavras(esperado)
-    if not r or not e:
-        return normalizar(resposta) == normalizar(esperado)
-    if r == e or sorted(r) == sorted(e):
+    """Compara nomes escritos exatamente: só maiúsculas, acentos e espaços não contam.
+    Erro de escrita NÃO vale (escrever certinho faz parte de programar)."""
+    r, e = normalizar(resposta), normalizar(esperado)
+    if r == e:
         return True
-    junto_r, junto_e = " ".join(r), " ".join(e)
-    if len(junto_e) >= 6 and _parecido(junto_r, junto_e, 0.88):
+    return parcial and len(r) >= 3 and r in e.split()
+
+
+def _quase(resposta: str, esperado: str) -> bool:
+    r, e = normalizar(resposta), normalizar(esperado)
+    if difflib.SequenceMatcher(None, r, e).ratio() >= 0.8:
         return True
-    if len(r) == len(e) and all(a == b or (len(a) == 1 and b.startswith(a)) for a, b in zip(r, e)):
-        return True  # iniciais: "b fernandes"
-    if parcial and len(r) == 1 and len(r[0]) >= 3:
-        palavra = r[0]
-        return any(palavra == p or (len(p) >= 5 and _parecido(palavra, p, 0.85)) for p in e)
-    return False
+    pr, pe = _palavras(resposta), _palavras(esperado)
+    if pr and (sorted(pr) == sorted(pe) or (len(pr) == len(pe) and all(
+            a == b or (len(a) == 1 and b.startswith(a)) for a, b in zip(pr, pe)))):
+        return True
+    return any(len(p) >= 4 and difflib.SequenceMatcher(None, r, p).ratio() >= 0.8 for p in e.split())
 
 
 def _como_numero(valor):
@@ -123,19 +119,14 @@ def comparar(resposta, missao: Missao) -> bool:
     return any(_igual(resposta, e, missao.tolerancia, missao.parcial) for e in opcoes)
 
 
-def escrita_certa(resposta, missao: Missao) -> str | None:
-    """Se o nome foi aceito com um errinho, devolve o nome escrito certinho."""
+def quase_escrito(resposta, missao: Missao) -> bool:
+    """O nome está quase certo (um errinho, ponto, ordem trocada…)? Só escolhe a dica:
+    nunca faz a resposta valer."""
     esperado = missao.esperado()
     opcoes = esperado if isinstance(esperado, Qualquer) else (esperado,)
     if not isinstance(resposta, str) or not all(isinstance(e, str) for e in opcoes):
-        return None
-    for e in opcoes:
-        if nomes_iguais(resposta, e, missao.parcial):
-            r, certas = _palavras(resposta), _palavras(e)
-            if r == certas or (missao.parcial and len(r) == 1 and r[0] in certas):
-                return None
-            return e
-    return None
+        return False
+    return any(_quase(resposta, e) for e in opcoes)
 
 
 def empatados(missao: Missao) -> list[str]:

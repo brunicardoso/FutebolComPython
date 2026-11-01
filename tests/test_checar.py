@@ -81,28 +81,33 @@ def test_empates_dos_dados_aceitam_todos_os_nomes():
         m = missoes.buscar("02_olheiro", missao)
         assert sorted(m.esperado()) == sorted(nomes), missao
         for nome in nomes:
-            variantes = [nome, nome.upper(), f" {nome}. ", f'"{nome}"', nome + "​",
-                         nome.replace(" ", " "), f"93 {nome}", nome.split()[-1]]
+            variantes = [nome, nome.upper(), f"  {nome} ", nome + "\u200b",
+                         nome.replace(" ", "\u00a0"), nome.split()[-1]]
             for v in variantes:
                 assert comparar(v, m), (missao, v)
 
 
-def test_nomes_com_errinho_iniciais_e_ordem():
+def test_erro_de_escrita_nao_vale():
     m = missoes.buscar("02_olheiro", "m2")
-    for v in ["Bruno Fernandez", "B. Fernandes", "Fernandes, Bruno", "Olisse"]:
-        assert comparar(v, m), v
-    for v in ["Dimarco", "Bruno Silva", "Fernando", "Messi"]:
+    for v in ["Bruno Fernandez", "Olisse", "B. Fernandes", "Fernandes, Bruno", "Bruno Fernandes.",
+              '"Bruno Fernandes"', "93 Bruno Fernandes", "Dimarco", "Messi"]:
         assert not comparar(v, m), v
-    assert missoes.escrita_certa("Bruno Fernandez", m) == "Bruno Fernandes"
-    assert missoes.escrita_certa("Bruno Fernandes", m) is None
+    for v in ["Bruno Fernandez", "Olisse", "B. Fernandes", "Fernandes, Bruno", "Bruno Fernandes."]:
+        assert missoes.quase_escrito(v, m), v
+    for v in ["Dimarco", "Messi"]:
+        assert not missoes.quase_escrito(v, m), v
 
 
-def test_empate_aparece_na_tela(tela, monkeypatch):
+def test_empate_aparece_e_errinho_ganha_dica_de_escrita(tela, monkeypatch):
     import vestiario
     from vestiario.aura import EstadoAura
     monkeypatch.setattr(vestiario, "_estado", EstadoAura())
     monkeypatch.setattr(vestiario.progresso, "ler_drive", lambda: None)
     vestiario.iniciar(1, "02_olheiro")
     tela.clear()
+    assert not vestiario.checar("Bruno Fernandez", "m2")
+    assert any("cada letra conta" in t for t in tela) and vestiario._estado.total == 0
+    tela.clear()
     assert vestiario.checar("Bruno Fernandes", "m2")
     assert any("Empate!" in t and "Michael Olise" in t for t in tela)
+    assert not any("escrito certinho" in t for t in tela)
