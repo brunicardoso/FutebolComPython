@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mais ou Menos</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+html,body{height:100%}
+body{background:#1565c0;font-family:system-ui,"Segoe UI",Roboto,Arial,sans-serif;color:#13213c;display:flex;justify-content:center;overflow:hidden}
+#app{position:relative;width:100%;max-width:520px;height:100%;max-height:560px;min-height:420px;display:flex;flex-direction:column;background:linear-gradient(#e3f2fd,#bbdefb);overflow:hidden}
+.barra{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;font-weight:800;font-size:20px;background:#1e88e5;color:#fff;z-index:5}
+.tela{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:20px;background:#fff8e1f7;z-index:20}
+.tela h1{font-size:38px;color:#1565c0}
+.tela p{font-size:20px;max-width:420px;line-height:1.35}
+.grande{font-size:64px}
+.escondido{display:none!important}
+.botao{min-height:60px;min-width:180px;padding:12px 30px;font-size:26px;font-weight:900;border:0;border-radius:999px;background:#ffd600;color:#13213c;box-shadow:0 6px 0 #c79f00;cursor:pointer;font-family:inherit}
+.botao:active{transform:translateY(4px);box-shadow:0 2px 0 #c79f00}
+.botao:disabled{opacity:.5}
+#jogo{flex:1;display:flex;flex-direction:column;gap:10px;padding:10px 12px 12px;min-height:0}
+#explica{text-align:center;font-size:17px;font-weight:800;color:#0d47a1;line-height:1.3;min-height:44px}
+#lista{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.valor{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:76px;border:3px solid transparent;border-radius:14px;background:#fff;box-shadow:0 3px 0 #0002;padding:4px 2px}
+.valor .nome{font-size:14px;font-weight:800}
+.valor .mi{font-size:21px;font-weight:900;color:#1565c0}
+.valor .mi small{font-size:12px}
+.valor .estrela{font-size:14px;min-height:18px}
+.valor.mediana{border-color:#f9a825;background:#fff8e1}
+#novo{flex:1;background:#fff;border-radius:16px;box-shadow:0 4px 0 #0002;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px;min-height:0}
+#novo .rotulo{font-size:17px;font-weight:800;color:#0d47a1}
+#novo .grandao{font-size:34px;font-weight:900}
+#aviso{text-align:center;font-size:18px;font-weight:900;min-height:48px;color:#0d47a1;line-height:1.3}
+#aviso.certo{color:#1b5e20}
+#aviso.quase{color:#bf360c}
+#botoes{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lado{min-height:72px;border:0;border-radius:16px;font-family:inherit;font-size:19px;font-weight:900;color:#fff;cursor:pointer;box-shadow:0 5px 0 #0003;line-height:1.2}
+.lado:active{transform:translateY(3px);box-shadow:0 2px 0 #0003}
+#acima{background:#2e7d32}
+#abaixo{background:#6a1b9a}
+.som{min-width:48px;min-height:48px;border:0;border-radius:12px;background:#ffffffdd;font-size:24px;cursor:pointer;font-family:inherit}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="barra"><span>⏱️ <span id="tempo">45</span>s</span><span>⭐ Acertos: <span id="placar">0</span></span><button class="som" id="som" aria-label="Ligar o som">🔇</button></div>
+  <div id="jogo">
+    <div id="explica"></div>
+    <div id="lista"></div>
+    <div id="novo"></div>
+    <div id="aviso"></div>
+    <div id="botoes">
+      <button class="lado" id="acima">⬆️ ACIMA<br>da mediana</button>
+      <button class="lado" id="abaixo">⬇️ ABAIXO<br>da mediana</button>
+    </div>
+  </div>
+
+  <div id="inicio" class="tela">
+    <div class="grande">💰⭐</div>
+    <h1>Mais ou Menos</h1>
+    <p>Cinco jogadores, em ordem de valor. A mediana é o valor do meio. Chega um jogador novo: ele vale mais ou menos que a mediana?</p>
+    <button class="botao" id="jogar">Jogar</button>
+  </div>
+
+  <div id="fim" class="tela escondido">
+    <div class="grande">💰</div>
+    <h1>Fim de jogo!</h1>
+    <p id="resultado"></p>
+    <p id="aura"></p>
+    <button class="botao" id="denovo">Jogar de novo</button>
+  </div>
+</div>
+<script>
+/* SOM-INICIO: copiado de midia/som.js por scripts/sincronizar_som.py (edite lá, não aqui) */
+// Sons sintetizados na hora com a Web Audio do navegador: nenhum arquivo, nenhuma rede.
+// Começa ligado (quem decide é quem usa). Cada som dura menos de 1 segundo.
+var Som = (function () {
+  var ctx = null, ligado = false;
+
+  function contexto() {
+    if (!ctx) {
+      var C = window.AudioContext || window.webkitAudioContext;
+      if (!C) return null;
+      ctx = new C();
+    }
+    if (ctx.state === "suspended") ctx.resume();
+    return ctx;
+  }
+
+  // Uma nota: frequência (Hz), começo e duração (s), tipo de onda, volume e frequência final.
+  function nota(c, freq, inicio, dur, tipo, vol, freqFim) {
+    var t = c.currentTime + inicio, osc = c.createOscillator(), g = c.createGain();
+    osc.type = tipo || "sine";
+    osc.frequency.setValueAtTime(freq, t);
+    if (freqFim) osc.frequency.exponentialRampToValueAtTime(freqFim, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol || 0.2, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.connect(g); g.connect(c.destination);
+    osc.start(t); osc.stop(t + dur + 0.02);
+  }
+
+  // Chiado filtrado (torcida, chute na bola).
+  function ruido(c, inicio, dur, vol, freq) {
+    var t = c.currentTime + inicio, n = Math.floor(c.sampleRate * dur);
+    var buf = c.createBuffer(1, n, c.sampleRate), d = buf.getChannelData(0);
+    for (var i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+    var fonte = c.createBufferSource(), filtro = c.createBiquadFilter(), g = c.createGain();
+    fonte.buffer = buf;
+    filtro.type = "bandpass"; filtro.frequency.value = freq || 1000;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol || 0.2, t + dur * 0.4);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    fonte.connect(filtro); filtro.connect(g); g.connect(c.destination);
+    fonte.start(t); fonte.stop(t + dur);
+  }
+
+  var sons = {
+    apito: function (c) { nota(c, 2600, 0, 0.18, "square", 0.05); nota(c, 2600, 0.24, 0.4, "square", 0.05); },
+    chute: function (c) { ruido(c, 0, 0.07, 0.4, 700); nota(c, 160, 0, 0.12, "sine", 0.4, 60); },
+    gol: function (c) {
+      [523, 659, 784, 1047].forEach(function (f, i) { nota(c, f, i * 0.09, 0.22, "triangle", 0.18); });
+    },
+    torcida: function (c) { ruido(c, 0, 0.9, 0.18, 1200); ruido(c, 0.05, 0.8, 0.1, 600); },
+    defesa: function (c) { nota(c, 220, 0, 0.15, "sine", 0.3, 90); },
+    erro: function (c) { nota(c, 440, 0, 0.16, "triangle", 0.12); nota(c, 370, 0.16, 0.24, "triangle", 0.12); },
+    clique: function (c) { nota(c, 880, 0, 0.05, "sine", 0.08); }
+  };
+
+  function tocar(nome) {
+    if (!ligado || !sons[nome]) return;
+    var c = contexto();
+    if (!c) return;
+    try { sons[nome](c); } catch (e) {}
+  }
+
+  // Liga um botão 🔇/🔊 (ele mesmo mostra o estado).
+  function botao(el) {
+    function pintar() {
+      el.textContent = ligado ? "🔊" : "🔇";
+      el.setAttribute("aria-label", ligado ? "Desligar o som" : "Ligar o som");
+    }
+    el.addEventListener("pointerdown", function (e) {
+      e.preventDefault(); e.stopPropagation();
+      ligado = !ligado;
+      if (ligado) { contexto(); tocar("clique"); }
+      pintar();
+    });
+    pintar();
+  }
+
+  return {
+    tocar: tocar,
+    botao: botao,
+    ligar: function (sim) { ligado = !!sim; if (ligado) contexto(); },
+    ligado: function () { return ligado; }
+  };
+})();
+/* SOM-FIM */
+// Configuração enviada pelo notebook (ou valores padrão se abrir sozinho)
+var CONFIG = window.CONFIG || {modo: "campeao", dica: "", id: "", nome: "mais_ou_menos"};
+var DURACAO = 45;
+// Nomes inventados (nenhum jogador de verdade)
+var NOMES = ["Ana", "Léo", "Bia", "Caio", "Duda", "Enzo", "Malu", "Theo", "Lara", "Davi", "Nina", "Rafa", "Iara", "Tito", "Gabi", "Juca"];
+
+function $(id) { return document.getElementById(id); }
+function embaralhar(lista) {
+  var a = lista.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+function entre(min, max) { return min + Math.floor(Math.random() * (max - min + 1)); }
+
+var jogando = false, acertos = 0, rodadas = 0, fimEm = 0, relogio = null, travado = false, mediana = 0, novoValor = 0;
+
+document.addEventListener("dblclick", function (e) { e.preventDefault(); });
+
+function enviarResultado(pontos) {
+  try {
+    parent.postMessage({tipo: "fim_de_jogo", id: CONFIG.id, modo: CONFIG.modo, nome: CONFIG.nome, pontos: pontos}, "*");
+  } catch (e) {}
+}
+
+function mostrarMediana() {
+  var meio = $("lista").children[2];
+  meio.classList.add("mediana");
+  meio.querySelector(".estrela").textContent = "⭐ meio";
+}
+
+function novaRodada() {
+  // Cinco valores diferentes (em milhões), já em ordem do menor para o maior
+  var valores = embaralhar(Array.from({length: 80}, function (_, i) { return i + 1; })).slice(0, 5);
+  valores.sort(function (a, b) { return a - b; });
+  mediana = valores[2];
+  var nomes = embaralhar(NOMES);
+  travado = false;
+
+  var lista = $("lista");
+  lista.innerHTML = "";
+  valores.forEach(function (v, i) {
+    var c = document.createElement("div");
+    c.className = "valor";
+    c.innerHTML = '<span class="nome">' + nomes[i] + '</span><span class="mi">' + v + '<small> mi</small></span><span class="estrela"></span>';
+    lista.appendChild(c);
+  });
+
+  // Na primeira rodada a mediana já aparece marcada; depois você acha o meio sozinho
+  if (rodadas === 0) {
+    mostrarMediana();
+    $("explica").textContent = "Em ordem, a mediana é o valor do meio: " + mediana + " milhões ⭐";
+  } else {
+    $("explica").textContent = "Ache o valor do meio da lista. Essa é a mediana!";
+  }
+
+  // O jogador novo nunca vale igual à mediana (metade das vezes acima, metade abaixo)
+  if (Math.random() < 0.5) novoValor = entre(mediana + 1, mediana + 40);
+  else novoValor = entre(Math.max(1, mediana - 40), mediana - 1);
+  if (novoValor === mediana) novoValor = mediana + 1;
+  $("novo").innerHTML = '<span class="rotulo">🆕 Chegou ' + nomes[5] + "! Valor:</span>" +
+    '<span class="grandao">💰 ' + novoValor + " milhões</span>";
+  $("aviso").className = "";
+  $("aviso").textContent = "";
+}
+
+function escolher(disseAcima) {
+  if (!jogando || travado) return;
+  travado = true;
+  rodadas++;
+  mostrarMediana();
+  var acima = novoValor > mediana;
+  var aviso = $("aviso");
+  var conta = novoValor + (acima ? " é maior que " : " é menor que ") + mediana + ".";
+  if (disseAcima === acima) {
+    acertos++;
+    $("placar").textContent = acertos;
+    aviso.className = "certo";
+    aviso.textContent = "Isso! " + conta + " ✅";
+    Som.tocar("gol");
+    setTimeout(function () { if (jogando) novaRodada(); }, 1000);
+  } else {
+    aviso.className = "quase";
+    aviso.textContent = "Quase! Olha de novo: a mediana é " + mediana + ", e " + conta;
+    Som.tocar("erro");
+    setTimeout(function () { if (jogando) novaRodada(); }, 2200);
+  }
+}
+
+function comecar() {
+  Som.tocar("apito");
+  acertos = 0; rodadas = 0; jogando = true;
+  $("placar").textContent = "0";
+  $("inicio").classList.add("escondido");
+  $("fim").classList.add("escondido");
+  novaRodada();
+  fimEm = Date.now() + DURACAO * 1000;
+  clearInterval(relogio);
+  relogio = setInterval(function () {
+    var resta = Math.max(0, Math.ceil((fimEm - Date.now()) / 1000));
+    $("tempo").textContent = resta;
+    if (resta <= 0) terminar();
+  }, 100);
+}
+
+function terminar() {
+  Som.tocar("apito");
+  clearInterval(relogio);
+  jogando = false;
+  // Aura de 0 a 50: 4 pontos por resposta certa, no máximo 50
+  var pontos = CONFIG.modo === "campeao" ? Math.min(50, acertos * 4) : 0;
+  $("resultado").textContent = "Você acertou " + acertos + (acertos === 1 ? " vez" : " vezes") + " se era acima ou abaixo da mediana!";
+  $("aura").textContent = (pontos > 0 && CONFIG.id) ? "✨ +" + pontos + " de aura! ✨" : "Achar o meio fica fácil com treino. Bora de novo!";
+  $("fim").classList.remove("escondido");
+  var botao = $("denovo");
+  botao.disabled = true;
+  setTimeout(function () { botao.disabled = false; }, 900);
+  enviarResultado(pontos);
+}
+
+$("acima").addEventListener("pointerdown", function (e) { e.preventDefault(); Som.tocar("clique"); escolher(true); });
+$("abaixo").addEventListener("pointerdown", function (e) { e.preventDefault(); Som.tocar("clique"); escolher(false); });
+$("jogar").addEventListener("pointerdown", function (e) { e.preventDefault(); comecar(); });
+$("denovo").addEventListener("pointerdown", function (e) { e.preventDefault(); if (!this.disabled) comecar(); });
+// Som: começa ligado; o botão 🔊/🔇 desliga e liga.
+Som.ligar(CONFIG.som !== false);
+Som.botao($("som"));
+</script>
+</body>
+</html>

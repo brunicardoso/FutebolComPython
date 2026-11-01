@@ -37,7 +37,10 @@ PERMITIDAS = [r"six seven", r"ascending=false", r"sort_values", r"value_counts",
               # e o tipo de célula do Jupyter.
               r"does not match", r"maybe you meant", r'"code"',
               # O aviso do Colab e o nome do botão aparecem como o aluno vê na tela.
-              r"this notebook was not authored by google", r"run anyway"]
+              r"this notebook was not authored by google", r"run anyway",
+              # Palavras-chave do Python que o aluno digita, quando aparecem como código.
+              r"\b(?:escreva|com|por|true|false) (?:and|or)\b", r"\b(?:and|or) (?:true|false)\b",
+              r"\w+ and not \w+", r"\w+ and \w+:", r"\bif \w+ (?:and|or) "]
 
 
 def limpar(texto: str) -> str:

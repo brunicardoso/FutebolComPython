@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corrida de Pontos</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+html,body{height:100%}
+body{background:#00695c;font-family:system-ui,"Segoe UI",Roboto,Arial,sans-serif;color:#13213c;display:flex;justify-content:center;overflow:hidden}
+#app{position:relative;width:100%;max-width:520px;height:100%;max-height:560px;min-height:420px;display:flex;flex-direction:column;background:linear-gradient(#e0f2f1,#b2dfdb);overflow:hidden}
+.barra{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;font-weight:800;font-size:20px;background:#00897b;color:#fff;z-index:5}
+.tela{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:20px;background:#fff8e1f7;z-index:20}
+.tela h1{font-size:38px;color:#00695c}
+.tela p{font-size:20px;max-width:420px;line-height:1.35}
+.grande{font-size:64px}
+.escondido{display:none!important}
+.botao{min-height:60px;min-width:180px;padding:12px 30px;font-size:26px;font-weight:900;border:0;border-radius:999px;background:#ffd600;color:#13213c;box-shadow:0 6px 0 #c79f00;cursor:pointer;font-family:inherit}
+.botao:active{transform:translateY(4px);box-shadow:0 2px 0 #c79f00}
+.botao:disabled{opacity:.5}
+#jogo{flex:1;display:flex;flex-direction:column;gap:10px;padding:10px 12px 12px;min-height:0}
+#legenda{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;font-size:16px;font-weight:800}
+#legenda span{display:flex;align-items:center;gap:4px;background:#fff;border-radius:999px;padding:4px 10px}
+#cartao{flex:1;background:#fff;border-radius:16px;box-shadow:0 4px 0 #0002;padding:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:0}
+#time{font-size:20px;font-weight:900;color:#00695c;text-align:center}
+#resultados{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.ficha{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#fff;box-shadow:0 3px 0 #0003}
+.ficha.v{background:#2e7d32}
+.ficha.e{background:#f9a825;color:#13213c}
+.ficha.d{background:#78909c}
+#pergunta{font-size:19px;font-weight:800;text-align:center}
+#aviso{text-align:center;font-size:19px;font-weight:900;min-height:28px;color:#00695c}
+#aviso.certo{color:#1b5e20}
+#aviso.quase{color:#bf360c}
+#opcoes{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.opcao{min-height:72px;border:0;border-radius:16px;background:#ffd600;color:#13213c;font-family:inherit;font-size:30px;font-weight:900;cursor:pointer;box-shadow:0 5px 0 #c79f00}
+.opcao:active{transform:translateY(3px);box-shadow:0 2px 0 #c79f00}
+.opcao.balanca{animation:balanca .4s}
+@keyframes balanca{0%,100%{transform:none}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+.som{min-width:48px;min-height:48px;border:0;border-radius:12px;background:#ffffffdd;font-size:24px;cursor:pointer;font-family:inherit}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="barra"><span>⏱️ <span id="tempo">45</span>s</span><span>🏁 Acertos: <span id="placar">0</span></span><button class="som" id="som" aria-label="Ligar o som">🔇</button></div>
+  <div id="jogo">
+    <div id="legenda">
+      <span><span class="ficha v" style="width:28px;height:28px;font-size:15px">V</span> vitória = 3</span>
+      <span><span class="ficha e" style="width:28px;height:28px;font-size:15px">E</span> empate = 1</span>
+      <span><span class="ficha d" style="width:28px;height:28px;font-size:15px">D</span> derrota = 0</span>
+    </div>
+    <div id="cartao">
+      <div id="time"></div>
+      <div id="resultados"></div>
+      <div id="pergunta">Quantos pontos o time fez?</div>
+    </div>
+    <div id="aviso"></div>
+    <div id="opcoes"></div>
+  </div>
+
+  <div id="inicio" class="tela">
+    <div class="grande">🏁🧮</div>
+    <h1>Corrida de Pontos</h1>
+    <p>Vitória vale 3, empate vale 1, derrota vale 0. Some os pontos do time e toque no total certo!</p>
+    <button class="botao" id="jogar">Jogar</button>
+  </div>
+
+  <div id="fim" class="tela escondido">
+    <div class="grande">🏁</div>
+    <h1>Fim de jogo!</h1>
+    <p id="resultado"></p>
+    <p id="aura"></p>
+    <button class="botao" id="denovo">Jogar de novo</button>
+  </div>
+</div>
+<script>
+/* SOM-INICIO: copiado de midia/som.js por scripts/sincronizar_som.py (edite lá, não aqui) */
+// Sons sintetizados na hora com a Web Audio do navegador: nenhum arquivo, nenhuma rede.
+// Começa ligado (quem decide é quem usa). Cada som dura menos de 1 segundo.
+var Som = (function () {
+  var ctx = null, ligado = false;
+
+  function contexto() {
+    if (!ctx) {
+      var C = window.AudioContext || window.webkitAudioContext;
+      if (!C) return null;
+      ctx = new C();
+    }
+    if (ctx.state === "suspended") ctx.resume();
+    return ctx;
+  }
+
+  // Uma nota: frequência (Hz), começo e duração (s), tipo de onda, volume e frequência final.
+  function nota(c, freq, inicio, dur, tipo, vol, freqFim) {
+    var t = c.currentTime + inicio, osc = c.createOscillator(), g = c.createGain();
+    osc.type = tipo || "sine";
+    osc.frequency.setValueAtTime(freq, t);
+    if (freqFim) osc.frequency.exponentialRampToValueAtTime(freqFim, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol || 0.2, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.connect(g); g.connect(c.destination);
+    osc.start(t); osc.stop(t + dur + 0.02);
+  }
+
+  // Chiado filtrado (torcida, chute na bola).
+  function ruido(c, inicio, dur, vol, freq) {
+    var t = c.currentTime + inicio, n = Math.floor(c.sampleRate * dur);
+    var buf = c.createBuffer(1, n, c.sampleRate), d = buf.getChannelData(0);
+    for (var i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+    var fonte = c.createBufferSource(), filtro = c.createBiquadFilter(), g = c.createGain();
+    fonte.buffer = buf;
+    filtro.type = "bandpass"; filtro.frequency.value = freq || 1000;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol || 0.2, t + dur * 0.4);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    fonte.connect(filtro); filtro.connect(g); g.connect(c.destination);
+    fonte.start(t); fonte.stop(t + dur);
+  }
+
+  var sons = {
+    apito: function (c) { nota(c, 2600, 0, 0.18, "square", 0.05); nota(c, 2600, 0.24, 0.4, "square", 0.05); },
+    chute: function (c) { ruido(c, 0, 0.07, 0.4, 700); nota(c, 160, 0, 0.12, "sine", 0.4, 60); },
+    gol: function (c) {
+      [523, 659, 784, 1047].forEach(function (f, i) { nota(c, f, i * 0.09, 0.22, "triangle", 0.18); });
+    },
+    torcida: function (c) { ruido(c, 0, 0.9, 0.18, 1200); ruido(c, 0.05, 0.8, 0.1, 600); },
+    defesa: function (c) { nota(c, 220, 0, 0.15, "sine", 0.3, 90); },
+    erro: function (c) { nota(c, 440, 0, 0.16, "triangle", 0.12); nota(c, 370, 0.16, 0.24, "triangle", 0.12); },
+    clique: function (c) { nota(c, 880, 0, 0.05, "sine", 0.08); }
+  };
+
+  function tocar(nome) {
+    if (!ligado || !sons[nome]) return;
+    var c = contexto();
+    if (!c) return;
+    try { sons[nome](c); } catch (e) {}
+  }
+
+  // Liga um botão 🔇/🔊 (ele mesmo mostra o estado).
+  function botao(el) {
+    function pintar() {
+      el.textContent = ligado ? "🔊" : "🔇";
+      el.setAttribute("aria-label", ligado ? "Desligar o som" : "Ligar o som");
+    }
+    el.addEventListener("pointerdown", function (e) {
+      e.preventDefault(); e.stopPropagation();
+      ligado = !ligado;
+      if (ligado) { contexto(); tocar("clique"); }
+      pintar();
+    });
+    pintar();
+  }
+
+  return {
+    tocar: tocar,
+    botao: botao,
+    ligar: function (sim) { ligado = !!sim; if (ligado) contexto(); },
+    ligado: function () { return ligado; }
+  };
+})();
+/* SOM-FIM */
+// Configuração enviada pelo notebook (ou valores padrão se abrir sozinho)
+var CONFIG = window.CONFIG || {modo: "campeao", dica: "", id: "", nome: "corrida_de_pontos"};
+var DURACAO = 45;
+// Times inventados (nenhum time de verdade)
+var TIMES = ["🐯 Tigres FC", "🦈 Tubarões FC", "🚀 Foguete EC", "🌵 Cacto Futebol", "🌋 Vulcão FC",
+  "🐝 Abelhas Unidas", "🐸 Sapos Saltadores", "🦜 Papagaios EC", "🍕 Pizzaria EC", "🐢 Tartarugas Velozes"];
+var VALOR = {V: 3, E: 1, D: 0};
+
+function $(id) { return document.getElementById(id); }
+function sortear(lista) { return lista[Math.floor(Math.random() * lista.length)]; }
+function embaralhar(lista) {
+  var a = lista.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+var jogando = false, acertos = 0, fimEm = 0, relogio = null, travado = false, total = 0, errou = false;
+
+document.addEventListener("dblclick", function (e) { e.preventDefault(); });
+
+function enviarResultado(pontos) {
+  try {
+    parent.postMessage({tipo: "fim_de_jogo", id: CONFIG.id, modo: CONFIG.modo, nome: CONFIG.nome, pontos: pontos}, "*");
+  } catch (e) {}
+}
+
+function novaRodada() {
+  // Sorteia de 3 a 5 jogos e soma os pontos
+  var n = 3 + Math.floor(Math.random() * 3);
+  var jogos = [];
+  for (var i = 0; i < n; i++) jogos.push(sortear(["V", "V", "E", "E", "D"]));
+  total = jogos.reduce(function (s, r) { return s + VALOR[r]; }, 0);
+  travado = false; errou = false;
+
+  $("time").textContent = sortear(TIMES);
+  $("resultados").innerHTML = jogos.map(function (r) {
+    return '<span class="ficha ' + r.toLowerCase() + '">' + r + "</span>";
+  }).join("");
+  $("aviso").className = "";
+  $("aviso").textContent = "";
+
+  // Duas respostas erradas parecidas (sem repetir e sem número negativo)
+  var vitorias = jogos.filter(function (r) { return r === "V"; }).length;
+  var candidatos = [total + 1, total - 1, total + 2, total - 2, total + 3, total - 3, vitorias + n];
+  candidatos = embaralhar(candidatos).filter(function (x, i, a) {
+    return x >= 0 && x !== total && a.indexOf(x) === i;
+  });
+  var opcoes = embaralhar([total, candidatos[0], candidatos[1]]);
+  var caixa = $("opcoes");
+  caixa.innerHTML = "";
+  opcoes.forEach(function (valor) {
+    var b = document.createElement("button");
+    b.className = "opcao";
+    b.textContent = valor;
+    b.addEventListener("pointerdown", function (e) { e.preventDefault(); escolher(valor, b); });
+    caixa.appendChild(b);
+  });
+}
+
+function escolher(valor, botao) {
+  if (!jogando || travado) return;
+  var aviso = $("aviso");
+  if (valor === total) {
+    travado = true;
+    // Só conta acerto se foi de primeira (tentar todos os botões não vale ponto)
+    if (!errou) acertos++;
+    $("placar").textContent = acertos;
+    aviso.className = "certo";
+    aviso.textContent = errou ? "Agora sim! " + total + " pontos." : "Isso! " + total + " pontos. ✅";
+    Som.tocar("gol");
+    setTimeout(function () { if (jogando) novaRodada(); }, 800);
+  } else {
+    // Errou: o botão balança e a criança tenta de novo na mesma rodada
+    errou = true;
+    botao.classList.remove("balanca");
+    void botao.offsetWidth;
+    botao.classList.add("balanca");
+    aviso.className = "quase";
+    aviso.textContent = "Quase! Olha de novo: V = 3, E = 1.";
+    Som.tocar("erro");
+  }
+}
+
+function comecar() {
+  Som.tocar("apito");
+  acertos = 0; jogando = true;
+  $("placar").textContent = "0";
+  $("inicio").classList.add("escondido");
+  $("fim").classList.add("escondido");
+  novaRodada();
+  fimEm = Date.now() + DURACAO * 1000;
+  clearInterval(relogio);
+  relogio = setInterval(function () {
+    var resta = Math.max(0, Math.ceil((fimEm - Date.now()) / 1000));
+    $("tempo").textContent = resta;
+    if (resta <= 0) terminar();
+  }, 100);
+}
+
+function terminar() {
+  Som.tocar("apito");
+  clearInterval(relogio);
+  jogando = false;
+  // Aura de 0 a 50: 4 pontos por soma certa, no máximo 50
+  var pontos = CONFIG.modo === "campeao" ? Math.min(50, acertos * 4) : 0;
+  $("resultado").textContent = "Você acertou " + acertos + (acertos === 1 ? " soma" : " somas") + " de pontos!";
+  $("aura").textContent = (pontos > 0 && CONFIG.id) ? "✨ +" + pontos + " de aura! ✨" : "Somar fica mais rápido com treino. Bora de novo!";
+  $("fim").classList.remove("escondido");
+  var botao = $("denovo");
+  botao.disabled = true;
+  setTimeout(function () { botao.disabled = false; }, 900);
+  enviarResultado(pontos);
+}
+
+$("jogar").addEventListener("pointerdown", function (e) { e.preventDefault(); comecar(); });
+$("denovo").addEventListener("pointerdown", function (e) { e.preventDefault(); if (!this.disabled) comecar(); });
+// Som: começa ligado; o botão 🔊/🔇 desliga e liga.
+Som.ligar(CONFIG.som !== false);
+Som.botao($("som"));
+</script>
+</body>
+</html>

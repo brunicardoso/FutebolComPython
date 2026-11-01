@@ -7,7 +7,6 @@
     {"url": null, "fallback": "🧤⚽👟", "texto": "Chuteiras amarradas? Vamos jogar!"}
   ],
   "sigma": [
-    {"arquivo": "gifs/sigma.gif", "url": null, "fallback": "🗿", "texto": "Resposta sigma. 🗿"},
     {"url": null, "fallback": "🗿", "texto": "Resposta sigma. 🗿"},
     {"url": null, "fallback": "🗿🗿🗿", "texto": "Nem piscou. Sigma total."},
     {"url": null, "fallback": "😎⚽", "texto": "Frieza de batedor de pênalti."}
@@ -29,7 +28,6 @@
     {"arquivo": "gifs/paqueta_danca.gif", "url": null, "fallback": "💃⚽💃", "texto": "Fim de jogo! Comemora igual o Paquetá! 💃"}
   ],
   "seis_sete": [
-    {"arquivo": "gifs/seis_sete.gif", "url": null, "fallback": "🤲 6️⃣7️⃣ 🤲", "texto": "SIX SEVEN! 🤲 67!"},
     {"url": null, "fallback": "🤲 6️⃣7️⃣ 🤲", "texto": "SIX SEVEN! 🤲 67!"},
     {"url": null, "fallback": "6️⃣7️⃣🤲🤲", "texto": "Apareceu um 67! SIX SEVEN!"}
   ],

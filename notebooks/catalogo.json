@@ -138,9 +138,9 @@
       ],
       "icone": "var",
       "minutos": 20,
-      "jogo": null,
+      "jogo": "var_relampago",
       "usa_dados": false,
-      "status": "em_breve"
+      "status": "pronto"
     },
     {
       "numero": 6,
@@ -159,9 +159,9 @@
       ],
       "icone": "tabela",
       "minutos": 20,
-      "jogo": null,
+      "jogo": "corrida_de_pontos",
       "usa_dados": false,
-      "status": "em_breve"
+      "status": "pronto"
     },
     {
       "numero": 7,
@@ -181,9 +181,9 @@
       ],
       "icone": "cronometro",
       "minutos": 20,
-      "jogo": null,
+      "jogo": "quem_e_mais_eficiente",
       "usa_dados": true,
-      "status": "em_breve"
+      "status": "pronto"
     },
     {
       "numero": 8,
@@ -203,9 +203,9 @@
       ],
       "icone": "grafico",
       "minutos": 20,
-      "jogo": null,
+      "jogo": "mais_ou_menos",
       "usa_dados": true,
-      "status": "em_breve"
+      "status": "pronto"
     },
     {
       "numero": 9,

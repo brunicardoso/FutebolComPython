@@ -19,6 +19,10 @@ CATALOGO = {
     "goleiro_reflexo": {"titulo": "Goleiro Reflexo", "icone": "🧤", "tipo": "campeao"},
     "tabela_maluca": {"titulo": "Tabela Maluca", "icone": "📋", "tipo": "campeao"},
     "penalti": {"titulo": "Pênalti", "icone": "🥅", "tipo": "campeao"},
+    "var_relampago": {"titulo": "VAR Relâmpago", "icone": "⚖️", "tipo": "campeao"},
+    "corrida_de_pontos": {"titulo": "Corrida de Pontos", "icone": "🏃", "tipo": "campeao"},
+    "quem_e_mais_eficiente": {"titulo": "Quem é mais eficiente?", "icone": "📈", "tipo": "campeao"},
+    "mais_ou_menos": {"titulo": "Mais ou Menos", "icone": "⚖️", "tipo": "campeao"},
     "treino_rapido": {"titulo": "Treino Rápido", "icone": "⏱️", "tipo": "treino"},
 }
 

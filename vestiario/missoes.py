@@ -172,6 +172,22 @@ def _penaltis_com_semente(semente: int, cobrancas: int) -> int:
 
 
 SAID_EL_MALA, CARLOS_ESPI = 1168219, 1063338
+ANSU_FATI, MBAPPE = 466810, 342229
+MINUTOS_TITULAR = 900
+
+
+def _por_90(tabela):
+    return tabela["gols"] / tabela["minutos"] * 90
+
+
+def _titulares(tabela):
+    return tabela[tabela["minutos"] >= MINUTOS_TITULAR]
+
+
+def _mais_por_90(tabela, id_a: int, id_b: int) -> str:
+    a = tabela.loc[tabela["player_id"] == id_a].iloc[0]
+    b = tabela.loc[tabela["player_id"] == id_b].iloc[0]
+    return a["nome"] if a["gols"] / a["minutos"] > b["gols"] / b["minutos"] else b["nome"]
 
 # ---------------------------------------------------------------- missões
 
@@ -264,6 +280,76 @@ MISSOES: dict[str, dict[str, Missao]] = {
         "desafio2": Missao(0.25, "Escreva todos os resultados: cara-cara, cara-coroa, coroa-cara, coroa-coroa.",
                            "São 4 resultados e só 1 é cara-cara: 1/4 = 0,25.",
                            tolerancia=0.001, dificil=True),
+    },
+    "05_var": {
+        "aquecimento": Missao(True, "Só apertar o play ▶️.", "7 é maior que 5, então a resposta é True."),
+        "m1": Missao(True, "O sinal que pergunta \"é maior que?\" é >.",
+                     "2 > 1 é verdade: o time da casa venceu (True)."),
+        "m2": Missao("falta", "Escreva falta entre as aspas.",
+                     "Como dentro_da_area é False, o Python vai para o else: falta."),
+        "m3": Missao(False, "Escreva and no lugar do ___. Com and, os dois lados precisam ser True.",
+                     "True and False dá False: o braço não estava aberto, então não é pênalti."),
+        "m4": Missao(True, "Escreva or no lugar do ___. Com or, basta um lado ser True.",
+                     "False or True dá True: segundo amarelo é vermelho."),
+        "desafio1": Missao("empate", "O sinal que pergunta \"é igual?\" tem dois iguais: ==.",
+                           "1 == 1 é True, então o Python entra no elif: empate."),
+        "desafio2": Missao(
+            "anulado", "Comece com: if bola_entrou and not impedido: (e não esqueça os 4 espaços).",
+            "A bola entrou e o atacante estava impedido: o gol é anulado.", dificil=True),
+    },
+    "06_tabela": {
+        "aquecimento": Missao(4, "Só apertar o play ▶️.", "Vitória (3) + empate (1) = 4 pontos."),
+        "m1": Missao(10, "O empate vale 1 ponto.", "3 vitórias (9) + 1 empate (1) + 1 derrota (0) = 10."),
+        "m2": Missao(3, "Cada vitória soma 1 no contador.", "V, V e V: são 3 vitórias."),
+        "m3": Missao(3, "Use -= para tirar os gols sofridos.", "8 gols feitos − 5 sofridos = saldo 3."),
+        "m4": Missao(Qualquer(["Leões", "Leoes"]), "Os pontos empataram. Quem tem o maior saldo?",
+                     "Empate em pontos: o saldo decide. Leões (5) > Tigres (3)."),
+        "desafio1": Missao(3, "O empate vale 1. São 3 empates e 1 derrota.", "1 + 1 + 1 + 0 = 3 pontos."),
+        "desafio2": Missao(
+            11, "Copie o for da Missão 1: if r == \"V\" soma 3, elif r == \"E\" soma 1.",
+            "3 + 3 + 1 + 0 + 3 + 1 = 11 pontos.", dificil=True),
+    },
+    "07_gols_por_90": {
+        "aquecimento": Missao(1, "Só apertar o play ▶️.", "2 ÷ 180 × 90 = 1 gol a cada 90 minutos.",
+                              tolerancia=0.001),
+        "m1": Missao(lambda t: _por_90(t).iloc[0], "Um jogo tem 90 minutos.",
+                     "gols ÷ minutos × 90 dá os gols a cada jogo inteiro.", tolerancia=0.01, usa_dados=True),
+        "m2": Missao(lambda t: _nomes_do_maximo(t.assign(taxa=_por_90(t)), "taxa"),
+                     "Ordene por gols_por_90 e olhe a primeira linha.",
+                     "Ele tem a maior taxa, mas jogou pouquíssimos minutos: amostra pequena!",
+                     parcial=True, usa_dados=True),
+        "m3": Missao(lambda t: _nomes_do_maximo(_titulares(t).assign(taxa=_por_90(_titulares(t))), "taxa"),
+                     "Use 900 no filtro e olhe o primeiro da lista.",
+                     "Com pelo menos 900 minutos, a comparação fica justa.", parcial=True, usa_dados=True),
+        "m4": Missao(lambda t: _mais_por_90(t, ANSU_FATI, MBAPPE), "Olhe a coluna gols_por_90 dos dois.",
+                     "Menos gols no total, mas com mais frequência: a taxa conta outra história.",
+                     parcial=True, usa_dados=True),
+        "desafio1": Missao(lambda t: len(_titulares(t)), "Coloque titulares dentro do len.",
+                           "len conta as linhas da tabela de titulares.", usa_dados=True),
+        "desafio2": Missao(
+            lambda t: _nomes_do_maximo(_titulares(t).assign(
+                taxa=_titulares(t)["assistencias"] / _titulares(t)["minutos"] * 90), "taxa"),
+            "titulares[\"assistencias_por_90\"] = titulares[\"assistencias\"] / titulares[\"minutos\"] * 90",
+            "Assistências ÷ minutos × 90, só entre os titulares.", parcial=True, usa_dados=True, dificil=True),
+    },
+    "08_media_mediana": {
+        "aquecimento": Missao(2, "Só apertar o play ▶️.", "(1 + 2 + 3) ÷ 3 = 2.", tolerancia=0.001),
+        "m1": Missao(lambda t: t["valor_milhoes"].max(), "Troque o ___ por max.",
+                     ".max() procura o maior valor da coluna.", tolerancia=0.01, usa_dados=True),
+        "m2": Missao(4, "Troque o ___ por mean.", "(2 + 3 + 4 + 5 + 6) ÷ 5 = 4.", tolerancia=0.001),
+        "m3": Missao(4.5, "Troque o ___ por median.",
+                     "Em ordem: 2, 3, 4, 5, 6, 180. Os do meio são 4 e 5: (4 + 5) ÷ 2 = 4,5.",
+                     tolerancia=0.001),
+        "m4": Missao(Qualquer(["media", "média"]), "Compare: a média foi de 4 para mais de 33. E a mediana?",
+                     "A média pulou de 4 para 33,3. A mediana só foi de 4 para 4,5."),
+        "desafio1": Missao(lambda t: t["valor_milhoes"].median(), "Troque o ___ por median.",
+                           "Metade dos jogadores vale menos que isso, e metade vale mais.",
+                           tolerancia=0.01, usa_dados=True),
+        "desafio2": Missao(
+            lambda t: _joias(t)["valor_milhoes"].median(),
+            "joias = jogadores[jogadores[\"nascido\"] >= 2005] e depois joias[\"valor_milhoes\"].median()",
+            "Primeiro o filtro das joias, depois a mediana da coluna valor_milhoes.",
+            tolerancia=0.01, usa_dados=True, dificil=True),
     },
 }
 

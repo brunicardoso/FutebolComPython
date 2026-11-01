@@ -28,16 +28,12 @@ def carregar() -> dict[str, list[dict]]:
 def escolher(categoria: str, sorteio: random.Random | None = None) -> dict:
     """Sorteia uma reação da categoria (sortear deixa a recompensa mais divertida).
 
-    Se a categoria tem GIF (arquivo ou link), o GIF sempre aparece; só o texto é
-    sorteado entre todas as opções. Sem GIF, sorteia entre os emojis."""
+    Se a categoria tem GIF (arquivo ou link), sorteia só entre os GIFs, e cada GIF
+    fica com a própria legenda. Sem GIF, sorteia entre os emojis."""
     sorteio = sorteio or random
     opcoes = carregar().get(categoria) or [{"url": None, "fallback": "⚽", "texto": ""}]
     com_imagem = [o for o in opcoes if o.get("arquivo") or o.get("url")]
-    if not com_imagem:
-        return sorteio.choice(opcoes)
-    entrada = dict(sorteio.choice(com_imagem))
-    entrada["texto"] = sorteio.choice(opcoes).get("texto", entrada.get("texto", ""))
-    return entrada
+    return sorteio.choice(com_imagem or opcoes)
 
 
 @lru_cache(maxsize=32)

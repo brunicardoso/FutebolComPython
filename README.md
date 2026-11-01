@@ -1,6 +1,6 @@
 # Futebol com Python ⚽🐍
 
-Notebooks do Google Colab para uma criança de uns 8 anos aprender **Python, matemática, estatística e lógica** com futebol. Cada notebook responde uma pergunta de torcedor ("Quem é a melhor joia jovem da Europa?", "Qual é a chance de fazer o gol de pênalti?") usando código.
+Notebooks do Google Colab para crianças e adolescentes de 9 a 14 anos aprenderem **Python, matemática, estatística e lógica** com futebol. Cada notebook responde uma pergunta de torcedor ("Quem é a melhor joia jovem da Europa?", "Qual é a chance de fazer o gol de pênalti?") usando código.
 
 Acertou uma missão? Ganha **aura**, reações e **jogos** que ficam guardados no vestiário. Errou? Entra no **modo beta**: dica, um treino rápido e nova tentativa. A aura nunca diminui.
 
@@ -17,7 +17,7 @@ O jeito mais fácil é o site do projeto, com todos os notebooks, explicações 
 | Nível | Notebooks | Situação |
 |---|---|---|
 | 1 · Sub-9 (fundamentos) | 01 Python é uma calculadora · 02 Olheiro de Joias · 03 Monte sua escalação · 04 Cara ou coroa e pênaltis | ✅ prontos |
-| 2 · Sub-11 (lógica) | 05 O VAR decide · 06 Tabela do campeonato · 07 Gols por 90 minutos · 08 Média ou mediana? | 🔒 em breve |
+| 2 · Sub-11 (lógica) | 05 O VAR decide · 06 Tabela do campeonato · 07 Gols por 90 minutos · 08 Média ou mediana? | ✅ prontos |
 | 3 · Sub-13 (geometria e simulação) | 09 Desenhe o campo · 10 Distância e ângulo do chute · 11 10.000 disputas de pênaltis · 12 O álbum de figurinhas | 🔒 em breve |
 | 4 · Sub-15 (construindo coisas) | 13 Sua carta de jogador · 14 Idade e gols andam juntos? · 15 Simulador de campeonato · 16 Projeto final | 🔒 em breve |
 

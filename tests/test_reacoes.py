@@ -42,7 +42,7 @@ def test_arquivos_de_gif_existem_e_sao_pequenos():
 
 
 def test_gif_local_vira_data_uri():
-    html = reacoes.html_reacao({"arquivo": "gifs/sigma.gif", "url": None, "fallback": "🗿", "texto": "Sigma"})
+    html = reacoes.html_reacao({"arquivo": "gifs/aura.gif", "url": None, "fallback": "🗿", "texto": "Sigma"})
     assert 'src="data:image/gif;base64,' in html and "onerror" in html
 
 
@@ -68,7 +68,7 @@ def test_som_comeca_ligado_e_o_icone_desliga():
         som.ligar(True)
 
 
-def test_categoria_com_gif_sempre_mostra_o_gif():
+def test_categoria_com_gif_sempre_mostra_o_gif_com_a_propria_legenda():
     import random
     sorteio = random.Random(1)
     for categoria, entradas in reacoes.carregar().items():
@@ -76,3 +76,4 @@ def test_categoria_com_gif_sempre_mostra_o_gif():
         for _ in range(20):
             escolhida = reacoes.escolher(categoria, sorteio)
             assert bool(escolhida.get("arquivo") or escolhida.get("url")) == tem_gif, categoria
+            assert escolhida in entradas  # a legenda é a do próprio GIF

@@ -22,9 +22,7 @@ LIMITE = 2 * 1024 * 1024  # 2 MB
 
 # nome original -> nome no repositório (sem acentos nem espaços)
 NOMES = {
-    "67.gif": "seis_sete.gif",
     "aura.gif": "aura.gif",
-    "sigma.gif": "sigma.gif",
     "cristiano_ronaldo_celebration.gif": "cristiano_ronaldo.gif",
     "haaland-rowing.webp": "haaland_remando.gif",
     "lamine-yamal-lamine.gif": "lamine_yamal.gif",
