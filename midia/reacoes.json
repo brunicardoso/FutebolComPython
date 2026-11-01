@@ -1,26 +1,35 @@
 {
-  "_leia_me": "Só links (GIPHY, Tenor). Nunca coloque arquivos de GIF aqui. Enquanto o link não for conferido por um adulto, deixe \"url\": null para aparecer o texto reserva.",
+  "_leia_me": "Cada reação pode ter \"arquivo\" (um GIF escolhido pelos pais, em midia/gifs/, já encolhido por scripts/comprimir_gifs.py) ou \"url\" (link do GIPHY ou Tenor conferido por um adulto). Sem nenhum dos dois, aparece o texto reserva. Nunca invente links: deixe \"url\": null.",
   "boas_vindas": [
+    {"arquivo": "gifs/haaland_remando.gif", "url": null, "fallback": "🚣⚽", "texto": "Remando rumo ao gol! Bem-vindo, craque!"},
     {"url": null, "fallback": "⚽👋⚽", "texto": "Bem-vindo ao vestiário, craque!"},
     {"url": null, "fallback": "🏟️✨🏟️", "texto": "O estádio está lotado esperando você!"},
     {"url": null, "fallback": "🧤⚽👟", "texto": "Chuteiras amarradas? Vamos jogar!"}
   ],
   "sigma": [
+    {"arquivo": "gifs/sigma.gif", "url": null, "fallback": "🗿", "texto": "Resposta sigma. 🗿"},
     {"url": null, "fallback": "🗿", "texto": "Resposta sigma. 🗿"},
     {"url": null, "fallback": "🗿🗿🗿", "texto": "Nem piscou. Sigma total."},
     {"url": null, "fallback": "😎⚽", "texto": "Frieza de batedor de pênalti."}
   ],
   "aura": [
+    {"arquivo": "gifs/aura.gif", "url": null, "fallback": "✨✨✨", "texto": "Aura no máximo! ✨"},
     {"url": null, "fallback": "✨✨✨", "texto": "Isso foi pura aura! ✨"},
     {"url": null, "fallback": "⚡⚽⚡", "texto": "Golaço de raciocínio!"},
     {"url": null, "fallback": "🌟🌟🌟", "texto": "Você está farmando aura!"},
     {"url": null, "fallback": "🎯", "texto": "Na gaveta! Acertou em cheio."}
   ],
   "yamal_danca": [
+    {"arquivo": "gifs/lamine_yamal.gif", "url": null, "fallback": "💃⚽💃⚽💃", "texto": "Isso merece a dancinha do Lamine Yamal! 💃⚽"},
     {"url": null, "fallback": "💃⚽💃⚽💃", "texto": "Isso merece a dancinha do Lamine Yamal! 💃⚽"},
     {"url": null, "fallback": "🕺⚽🕺", "texto": "Comemoração de final de campeonato!"}
   ],
+  "fim_notebook": [
+    {"arquivo": "gifs/vinicius_danca.gif", "url": null, "fallback": "🕺⚽🕺", "texto": "Notebook completo! Dancinha do Vini Jr.! 🕺"},
+    {"arquivo": "gifs/paqueta_danca.gif", "url": null, "fallback": "💃⚽💃", "texto": "Fim de jogo! Comemora igual o Paquetá! 💃"}
+  ],
   "seis_sete": [
+    {"arquivo": "gifs/seis_sete.gif", "url": null, "fallback": "🤲 6️⃣7️⃣ 🤲", "texto": "SIX SEVEN! 🤲 67!"},
     {"url": null, "fallback": "🤲 6️⃣7️⃣ 🤲", "texto": "SIX SEVEN! 🤲 67!"},
     {"url": null, "fallback": "6️⃣7️⃣🤲🤲", "texto": "Apareceu um 67! SIX SEVEN!"}
   ],
@@ -34,6 +43,7 @@
     {"url": null, "fallback": "😮🥅", "texto": "Passou raspando a trave! Quase!"}
   ],
   "sequencia": [
+    {"arquivo": "gifs/cristiano_ronaldo.gif", "url": null, "fallback": "🔥⚽🔥", "texto": "Sequência de craque! SIUUU! 🔥"},
     {"url": null, "fallback": "🔥🔥🔥", "texto": "Você está pegando fogo!"},
     {"url": null, "fallback": "🔥⚽🔥", "texto": "Ninguém para esse time!"}
   ]

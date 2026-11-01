@@ -1,6 +1,11 @@
-from vestiario import reacoes
+import importlib
 
-CATEGORIAS = ["boas_vindas", "sigma", "aura", "yamal_danca", "seis_sete", "beta", "quase", "sequencia"]
+from vestiario import config, reacoes
+
+# A função som() esconde o módulo de mesmo nome no pacote.
+som = importlib.import_module("vestiario.som")
+
+CATEGORIAS = ["boas_vindas", "sigma", "aura", "yamal_danca", "seis_sete", "beta", "quase", "sequencia", "fim_notebook"]
 
 
 def test_todas_as_categorias_tem_reserva():
@@ -25,3 +30,38 @@ def test_url_quebrada_tem_plano_b():
 def test_beta_nunca_xinga():
     for entrada in reacoes.carregar()["beta"]:
         assert entrada["texto"].startswith("Modo beta")
+
+
+def test_arquivos_de_gif_existem_e_sao_pequenos():
+    for categoria, entradas in reacoes.carregar().items():
+        for entrada in entradas:
+            if entrada.get("arquivo"):
+                caminho = config.PASTA_MIDIA / entrada["arquivo"]
+                assert caminho.is_file(), entrada["arquivo"]
+                assert caminho.stat().st_size < 2 * 1024 * 1024, entrada["arquivo"]
+
+
+def test_gif_local_vira_data_uri():
+    html = reacoes.html_reacao({"arquivo": "gifs/sigma.gif", "url": None, "fallback": "🗿", "texto": "Sigma"})
+    assert 'src="data:image/gif;base64,' in html and "onerror" in html
+
+
+def test_gif_que_sumiu_usa_reserva():
+    html = reacoes.html_reacao({"arquivo": "gifs/nao_existe.gif", "url": None, "fallback": "🗿", "texto": "Sigma"})
+    assert "<img" not in html and "🗿" in html
+
+
+def test_arquivo_fora_de_midia_nao_abre():
+    html = reacoes.html_reacao({"arquivo": "../dados/clubes.csv", "url": None, "fallback": "🗿", "texto": "x"})
+    assert "<img" not in html
+
+
+def test_som_comeca_mudo_e_liga():
+    som.ligar(False)
+    assert som.html_som("sigma") == ""
+    som.ligar(True)
+    try:
+        html = som.html_som("sigma")
+        assert "Som.tocar(\"gol\")" in html and "🔊" in html
+    finally:
+        som.ligar(False)

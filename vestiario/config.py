@@ -10,6 +10,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 PASTA_DADOS = RAIZ / "dados"
 PASTA_JOGOS = RAIZ / "jogos"
 PASTA_MIDIA = RAIZ / "midia"
+PASTA_GIFS = PASTA_MIDIA / "gifs"
 PASTA_NOTEBOOKS = RAIZ / "notebooks"
 
 ARQUIVO_JOGADORES = PASTA_DADOS / "jogadores_2025_26.csv.gz"

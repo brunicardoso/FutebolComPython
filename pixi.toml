@@ -15,6 +15,7 @@ nbclient = "*"
 nbstripout = "*"
 pytest = "*"
 requests = "*"
+pillow = "*"
 
 [tasks]
 testes = "pytest -q tests"
@@ -22,6 +23,8 @@ testar-notebooks = "python scripts/testar_notebooks.py"
 preparar-dados = "python scripts/preparar_dados.py"
 verificar-curiosidades = "python scripts/verificar_curiosidades.py"
 checar-idioma = "python scripts/checar_idioma.py"
+sincronizar-som = "python scripts/sincronizar_som.py"
+comprimir-gifs = "python scripts/comprimir_gifs.py"
 construir-site = "python scripts/construir_site.py"
 site = { cmd = "python -m http.server 8000 -d site", depends-on = ["construir-site"] }
 verificar = { depends-on = ["testes", "checar-idioma", "construir-site", "testar-notebooks"] }

@@ -5,3 +5,10 @@ __pycache__/
 .ipynb_checkpoints/
 dados/brutos/
 site/catalogo.js
+
+# Instruções locais para agentes (não vão para o GitHub)
+AGENTS.md
+
+# GIFs originais (os encolhidos ficam em midia/gifs/)
+/gifs/
+*:Zone.Identifier

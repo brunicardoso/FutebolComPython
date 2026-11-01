@@ -7,6 +7,7 @@
     dica(missao="m1")              mostra a dica de uma missão
     curiosidades(tabela, n=3)      curiosidades dos jogadores da tabela
     vestiario()                    seus jogos e seu nível de aura
+    som(True) / som(False)         liga ou desliga o som (começa mudo)
     jogar(nome)                    abre um jogo desbloqueado
     terminar()                     fecha o notebook e libera o jogo do vestiário
     salvar_progresso() / carregar_progresso(codigo)
@@ -19,14 +20,15 @@ import json
 import time
 
 from . import aura as _aura
-from . import config, missoes, progresso, reacoes
+from . import config, erros, missoes, progresso, reacoes
+from . import som as _som
 from . import curiosidades as _curiosidades
 from . import jogos as _jogos
 from .dados import carregar_jogadores
 from .tela import caixa, escapar, exibir, numero
 
 __all__ = ["iniciar", "checar", "chute", "comemorar", "dica", "curiosidades", "vestiario",
-           "jogar", "terminar", "salvar_progresso", "carregar_progresso", "carregar_jogadores"]
+           "som", "jogar", "terminar", "salvar_progresso", "carregar_progresso", "carregar_jogadores"]
 
 _estado = _aura.EstadoAura()
 _sessao = {"nivel": 1, "notebook": "", "inicio": time.monotonic(), "intervalo": False}
@@ -110,12 +112,16 @@ def iniciar(nivel: int = 1, notebook: str = "") -> None:
     if do_drive and do_drive.total > _estado.total:
         _carregar_estado(do_drive)
     _jogos.registrar_callback(_aura_do_jogo)
+    erros.instalar(notebook)
     info = _info_notebook(notebook)
     if info and info.get("usa_dados"):
         carregar_jogadores()
     titulo = f"{info['icone']} {escapar(info['titulo'])}" if info else "Futebol com Python"
     reacoes.mostrar("boas_vindas", extra=f'<div style="margin-top:4px">{titulo}</div>')
     exibir(_barra_aura())
+    if not _som.ligado():
+        exibir(caixa('🔇 O som começa desligado. Para ligar, escreva <code>som()</code>.',
+                     cor="#37474f", fundo="#eceff1", tamanho="1em"))
     if _estado.total == 0:
         exibir(caixa('Já jogou antes? Cole seu código secreto assim: '
                      '<code>carregar_progresso("AURA-...")</code>', cor="#37474f", fundo="#eceff1",
@@ -151,6 +157,8 @@ def checar(resposta, missao: str = "m1") -> bool:
         elif resultado.repetida:
             exibir(caixa("Certo de novo! Essa missão já deu aura antes. ✅", tamanho="1em"))
         if resultado.marco_sequencia:
+            if not rara:
+                reacoes.mostrar("sequencia")
             exibir(caixa(f"🔥 Sequência de {resultado.marco_sequencia}!", cor="#bf360c",
                          fundo="#fbe9e7", tamanho="1.3em"))
         if resultado.subiu_para:
@@ -215,6 +223,17 @@ def chute(palpite, real) -> float | None:
     return round(erro, 1)
 
 
+def som(ligado: bool = True) -> None:
+    """Liga (som()) ou desliga (som(False)) o som das reações e dos jogos."""
+    _som.ligar(ligado)
+    if ligado:
+        exibir(caixa("🔊 Som ligado! Para desligar, escreva <code>som(False)</code>.",
+                     tamanho="1em") + _som.html_som("sigma"))
+    else:
+        exibir(caixa("🔇 Som desligado. Para ligar de novo, escreva <code>som()</code>.",
+                     cor="#37474f", fundo="#eceff1", tamanho="1em"))
+
+
 def comemorar(tipo: str = "aura") -> None:
     """Comemoração manual (por exemplo, quando os pais querem celebrar)."""
     reacoes.mostrar(tipo)
@@ -273,7 +292,7 @@ def terminar() -> None:
     info = _info_notebook(_sessao["notebook"])
     if info:
         _estado.notebooks.add(info["numero"])
-    reacoes.mostrar("yamal_danca")
+    reacoes.mostrar("fim_notebook")
     exibir(caixa("🏁 <b>Notebook completo!</b> Você treinou como profissional.",
                  cor="#1b5e20", fundo="#e8f5e9", tamanho="1.3em"))
     if info and info.get("jogo"):

@@ -26,11 +26,12 @@ body{background:#4a148c;font-family:system-ui,"Segoe UI",Roboto,Arial,sans-serif
 .efeito{position:absolute;font-size:36px;pointer-events:none;animation:sobe .6s ease-out forwards}
 @keyframes sobe{from{opacity:1;transform:scale(.6)}to{opacity:0;transform:translateY(-30px) scale(1.4)}}
 #aviso{position:absolute;left:0;right:0;top:10px;text-align:center;font-size:26px;font-weight:900;color:#fff;text-shadow:0 2px 0 #0008;pointer-events:none}
+.som{min-width:48px;min-height:48px;border:0;border-radius:12px;background:#ffffffdd;font-size:24px;cursor:pointer;font-family:inherit}
 </style>
 </head>
 <body>
 <div id="app">
-  <div class="barra"><span>⏱️ <span id="tempo">45</span>s</span><span>🧤 <span id="defesas">0</span></span><span>🥅 <span id="sofridos">0</span></span></div>
+  <div class="barra"><span>⏱️ <span id="tempo">45</span>s</span><span>🧤 <span id="defesas">0</span></span><span>🥅 <span id="sofridos">0</span></span><button class="som" id="som" aria-label="Ligar o som">🔇</button></div>
   <div id="campo">
     <div id="linha"></div>
     <div id="gol"></div>
@@ -53,6 +54,92 @@ body{background:#4a148c;font-family:system-ui,"Segoe UI",Roboto,Arial,sans-serif
   </div>
 </div>
 <script>
+/* SOM-INICIO: copiado de midia/som.js por scripts/sincronizar_som.py (edite lá, não aqui) */
+// Sons sintetizados na hora com a Web Audio do navegador: nenhum arquivo, nenhuma rede.
+// Começa sempre MUDO. Cada som dura menos de 1 segundo.
+var Som = (function () {
+  var ctx = null, ligado = false;
+
+  function contexto() {
+    if (!ctx) {
+      var C = window.AudioContext || window.webkitAudioContext;
+      if (!C) return null;
+      ctx = new C();
+    }
+    if (ctx.state === "suspended") ctx.resume();
+    return ctx;
+  }
+
+  // Uma nota: frequência (Hz), começo e duração (s), tipo de onda, volume e frequência final.
+  function nota(c, freq, inicio, dur, tipo, vol, freqFim) {
+    var t = c.currentTime + inicio, osc = c.createOscillator(), g = c.createGain();
+    osc.type = tipo || "sine";
+    osc.frequency.setValueAtTime(freq, t);
+    if (freqFim) osc.frequency.exponentialRampToValueAtTime(freqFim, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol || 0.2, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.connect(g); g.connect(c.destination);
+    osc.start(t); osc.stop(t + dur + 0.02);
+  }
+
+  // Chiado filtrado (torcida, chute na bola).
+  function ruido(c, inicio, dur, vol, freq) {
+    var t = c.currentTime + inicio, n = Math.floor(c.sampleRate * dur);
+    var buf = c.createBuffer(1, n, c.sampleRate), d = buf.getChannelData(0);
+    for (var i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+    var fonte = c.createBufferSource(), filtro = c.createBiquadFilter(), g = c.createGain();
+    fonte.buffer = buf;
+    filtro.type = "bandpass"; filtro.frequency.value = freq || 1000;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol || 0.2, t + dur * 0.4);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    fonte.connect(filtro); filtro.connect(g); g.connect(c.destination);
+    fonte.start(t); fonte.stop(t + dur);
+  }
+
+  var sons = {
+    apito: function (c) { nota(c, 2600, 0, 0.18, "square", 0.05); nota(c, 2600, 0.24, 0.4, "square", 0.05); },
+    chute: function (c) { ruido(c, 0, 0.07, 0.4, 700); nota(c, 160, 0, 0.12, "sine", 0.4, 60); },
+    gol: function (c) {
+      [523, 659, 784, 1047].forEach(function (f, i) { nota(c, f, i * 0.09, 0.22, "triangle", 0.18); });
+    },
+    torcida: function (c) { ruido(c, 0, 0.9, 0.18, 1200); ruido(c, 0.05, 0.8, 0.1, 600); },
+    defesa: function (c) { nota(c, 220, 0, 0.15, "sine", 0.3, 90); },
+    erro: function (c) { nota(c, 440, 0, 0.16, "triangle", 0.12); nota(c, 370, 0.16, 0.24, "triangle", 0.12); },
+    clique: function (c) { nota(c, 880, 0, 0.05, "sine", 0.08); }
+  };
+
+  function tocar(nome) {
+    if (!ligado || !sons[nome]) return;
+    var c = contexto();
+    if (!c) return;
+    try { sons[nome](c); } catch (e) {}
+  }
+
+  // Liga um botão 🔇/🔊 (ele mesmo mostra o estado).
+  function botao(el) {
+    function pintar() {
+      el.textContent = ligado ? "🔊" : "🔇";
+      el.setAttribute("aria-label", ligado ? "Desligar o som" : "Ligar o som");
+    }
+    el.addEventListener("pointerdown", function (e) {
+      e.preventDefault(); e.stopPropagation();
+      ligado = !ligado;
+      if (ligado) { contexto(); tocar("clique"); }
+      pintar();
+    });
+    pintar();
+  }
+
+  return {
+    tocar: tocar,
+    botao: botao,
+    ligar: function (sim) { ligado = !!sim; if (ligado) contexto(); },
+    ligado: function () { return ligado; }
+  };
+})();
+/* SOM-FIM */
 // Configuração enviada pelo notebook (ou valores padrão se abrir sozinho)
 var CONFIG = window.CONFIG || {modo: "campeao", dica: "", id: "", nome: "goleiro_reflexo"};
 var DURACAO = 45;
@@ -120,6 +207,7 @@ function criarBola() {
     defesas++;
     $("defesas").textContent = defesas;
     efeito("🧤", b.x, b.y);
+    Som.tocar("defesa");
     el.remove();
   });
   $("campo").appendChild(el);
@@ -154,6 +242,7 @@ function passo(agora) {
       sofridos++;
       $("sofridos").textContent = sofridos;
       avisar(sortear(frasesSofrido));
+      Som.tocar("erro");
       continue;
     }
     posicionar(b);
@@ -167,6 +256,7 @@ function limparBolas() {
 }
 
 function comecar() {
+  Som.tocar("apito");
   defesas = 0; sofridos = 0; jogando = true;
   limparBolas();
   $("defesas").textContent = "0"; $("sofridos").textContent = "0"; $("aviso").textContent = "";
@@ -186,6 +276,7 @@ function comecar() {
 }
 
 function terminar() {
+  Som.tocar("apito");
   clearInterval(relogio);
   jogando = false;
   limparBolas();
@@ -202,6 +293,9 @@ function terminar() {
 
 $("jogar").addEventListener("pointerdown", function (e) { e.preventDefault(); comecar(); });
 $("denovo").addEventListener("pointerdown", function (e) { e.preventDefault(); if (!this.disabled) comecar(); });
+// Som: começa mudo; o botão 🔇/🔊 liga e desliga.
+Som.ligar(CONFIG.som);
+Som.botao($("som"));
 </script>
 </body>
 </html>

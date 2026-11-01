@@ -23,7 +23,7 @@ O jeito mais fácil é o site do projeto, com todos os notebooks, explicações 
 
 ## 👨‍👩‍👦 Para os pais
 
-**Como abrir no computador ou tablet:** no site, toque em **Abrir no Colab**, entre com uma conta Google e aperte ▶️ na primeira célula ("Preparar o vestiário"). Se o Colab avisar que o notebook não é do Google, toque em **Executar assim mesmo**. Depois é só ir descendo e apertando ▶️.
+**Como abrir no computador ou tablet:** no site, toque em **Abrir no Colab**, entre com uma conta Google e aperte ▶️ na primeira célula ("Preparar o vestiário"). Vai aparecer um aviso em inglês, *"This notebook was not authored by Google"*: o Colab mostra isso para todo notebook que vem do GitHub, e não dá para desligar. É seguro tocar em **Run anyway** (**Executar assim mesmo**): o notebook só baixa este projeto. Para o aviso não voltar, use **Arquivo → Salvar uma cópia no Drive** e abra a sua cópia (ela continua baixando a versão mais nova do projeto). Depois é só ir descendo e apertando ▶️.
 
 **No celular:** funciona no navegador (Chrome ou Safari). Toque numa célula para digitar e no ▶️ para rodar. Uma tela maior é mais confortável.
 
@@ -33,7 +33,13 @@ O jeito mais fácil é o site do projeto, com todos os notebooks, explicações 
 
 **Privacidade:** nenhum dado pessoal é coletado ou enviado. Não há anúncios, compras nem chat.
 
-**Reações (GIFs):** o arquivo `midia/reacoes.json` vem só com emojis. Se quiser GIFs, coloque links do GIPHY ou do Tenor no campo `"url"` (só links, nunca os arquivos).
+**Reações (GIFs):** as reações usam os GIFs escolhidos pelos pais, guardados em `midia/gifs/` (encolhidos para no máximo 300 pixels e menos de 2 MB cada). Para trocar, coloque o GIF original na pasta `gifs/` (ela não vai para o GitHub), ajuste `scripts/comprimir_gifs.py` e rode `pixi run comprimir-gifs`. Também dá para usar um link do GIPHY ou do Tenor no campo `"url"` de `midia/reacoes.json`. Sem imagem, aparece um emoji.
+
+**Som:** os sons (apito, chute, gol, torcida) são criados na hora pelo navegador, sem arquivos de áudio. Tudo começa **mudo**. No notebook, `som()` liga e `som(False)` desliga; nos jogos, toque no botão 🔇/🔊.
+
+**Erros:** se a criança apagar um pedaço do código sem querer, aparece uma caixa com uma dica e o **código original** da célula para copiar de volta. O erro técnico fica escondido em "ver erro técnico".
+
+**Professores:** cada notebook tem, no bloco "Para os pais e professores", sugestões de uso em sala, os conteúdos da BNCC e perguntas para conversar com a turma.
 
 ## 📊 Dados
 

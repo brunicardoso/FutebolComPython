@@ -1,16 +1,18 @@
 """Reações (GIFs e emojis) para cada momento.
 
-Os links ficam em midia/reacoes.json. Se o link for null ou não abrir,
-aparece o texto reserva (fallback) com emojis.
+Cada reação de midia/reacoes.json pode ter um "arquivo" (GIF escolhido pelos
+pais, em midia/gifs/) ou um "url" (link do GIPHY/Tenor). Se não tiver nenhum,
+ou se a imagem não abrir, aparece o texto reserva (fallback) com emojis.
 """
 
 from __future__ import annotations
 
+import base64
 import json
 import random
 from functools import lru_cache
 
-from . import config
+from . import config, som
 from .tela import escapar, exibir
 
 LARGURA_MAXIMA = 300  # pixels
@@ -29,11 +31,23 @@ def escolher(categoria: str, sorteio: random.Random | None = None) -> dict:
     return (sorteio or random).choice(opcoes)
 
 
+@lru_cache(maxsize=32)
+def _dados_do_arquivo(caminho: str) -> str | None:
+    """Lê um GIF de midia/ e devolve como data URI (o Colab não mostra arquivos
+    locais num <img>). Se o arquivo não existir, devolve None."""
+    arquivo = (config.PASTA_MIDIA / caminho).resolve()
+    if config.PASTA_MIDIA.resolve() not in arquivo.parents or not arquivo.is_file():
+        return None
+    tipo = "image/webp" if arquivo.suffix.lower() == ".webp" else "image/gif"
+    return f"data:{tipo};base64,{base64.b64encode(arquivo.read_bytes()).decode('ascii')}"
+
+
 def html_reacao(entrada: dict, extra: str = "") -> str:
-    """Monta o HTML de uma reação. Sem link, usa só o texto reserva."""
+    """Monta o HTML de uma reação. Sem imagem, usa só o texto reserva."""
     texto = f'<div style="font-size:1.3em;font-weight:700">{escapar(entrada.get("texto", ""))}</div>'
     reserva = escapar(entrada.get("fallback", "⚽"))
-    url = entrada.get("url")
+    url = _dados_do_arquivo(entrada["arquivo"]) if entrada.get("arquivo") else None
+    url = url or entrada.get("url")
     if url:
         # Se a imagem falhar (sem internet, link quebrado), troca pelo texto reserva.
         figura = (f'<img src="{escapar(url)}" alt="" style="max-width:{LARGURA_MAXIMA}px;'
@@ -48,5 +62,5 @@ def html_reacao(entrada: dict, extra: str = "") -> str:
 
 def mostrar(categoria: str, extra: str = "") -> dict:
     entrada = escolher(categoria)
-    exibir(html_reacao(entrada, extra))
+    exibir(html_reacao(entrada, extra + som.html_som(categoria)))
     return entrada

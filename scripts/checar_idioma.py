@@ -32,7 +32,12 @@ PALAVRAS_INGLES = {
 # Também valem nomes de colunas do Transfermarkt e palavras-chave do Python.
 PERMITIDAS = [r"six seven", r"ascending=false", r"sort_values", r"value_counts",
               r"user-agent", r"pt-br", r"cc0", r"cc by-nc-sa", r"polyform noncommercial", r"player_id", r"club_id",
-              r"\band / or\b"]
+              r"\band / or\b",
+              # Pedaços das mensagens de erro do próprio Python (vestiario/erros.py procura por eles)
+              # e o tipo de célula do Jupyter.
+              r"does not match", r"maybe you meant", r'"code"',
+              # O aviso do Colab e o nome do botão aparecem como o aluno vê na tela.
+              r"this notebook was not authored by google", r"run anyway"]
 
 
 def limpar(texto: str) -> str:

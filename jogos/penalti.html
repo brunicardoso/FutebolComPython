@@ -29,11 +29,12 @@ body{background:#0f6b2f;font-family:system-ui,"Segoe UI",Roboto,Arial,sans-serif
 #bola svg{width:100%;height:100%}
 #aviso{position:absolute;left:0;right:0;bottom:3%;text-align:center;font-size:34px;font-weight:900;color:#fff;text-shadow:0 3px 0 #0007;pointer-events:none}
 #aviso small{display:block;font-size:20px}
+.som{min-width:48px;min-height:48px;border:0;border-radius:12px;background:#ffffffdd;font-size:24px;cursor:pointer;font-family:inherit}
 </style>
 </head>
 <body>
 <div id="app">
-  <div class="barra"><span>⏱️ <span id="tempo">45</span>s</span><span>⚽ Gols: <span id="placar">0</span></span></div>
+  <div class="barra"><span>⏱️ <span id="tempo">45</span>s</span><span>⚽ Gols: <span id="placar">0</span></span><button class="som" id="som" aria-label="Ligar o som">🔇</button></div>
   <div id="campo">
     <div id="gol">
       <button class="zona" data-z="0">↖</button><button class="zona" data-z="1">⬆</button><button class="zona" data-z="2">↗</button>
@@ -64,6 +65,92 @@ body{background:#0f6b2f;font-family:system-ui,"Segoe UI",Roboto,Arial,sans-serif
   </div>
 </div>
 <script>
+/* SOM-INICIO: copiado de midia/som.js por scripts/sincronizar_som.py (edite lá, não aqui) */
+// Sons sintetizados na hora com a Web Audio do navegador: nenhum arquivo, nenhuma rede.
+// Começa sempre MUDO. Cada som dura menos de 1 segundo.
+var Som = (function () {
+  var ctx = null, ligado = false;
+
+  function contexto() {
+    if (!ctx) {
+      var C = window.AudioContext || window.webkitAudioContext;
+      if (!C) return null;
+      ctx = new C();
+    }
+    if (ctx.state === "suspended") ctx.resume();
+    return ctx;
+  }
+
+  // Uma nota: frequência (Hz), começo e duração (s), tipo de onda, volume e frequência final.
+  function nota(c, freq, inicio, dur, tipo, vol, freqFim) {
+    var t = c.currentTime + inicio, osc = c.createOscillator(), g = c.createGain();
+    osc.type = tipo || "sine";
+    osc.frequency.setValueAtTime(freq, t);
+    if (freqFim) osc.frequency.exponentialRampToValueAtTime(freqFim, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol || 0.2, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.connect(g); g.connect(c.destination);
+    osc.start(t); osc.stop(t + dur + 0.02);
+  }
+
+  // Chiado filtrado (torcida, chute na bola).
+  function ruido(c, inicio, dur, vol, freq) {
+    var t = c.currentTime + inicio, n = Math.floor(c.sampleRate * dur);
+    var buf = c.createBuffer(1, n, c.sampleRate), d = buf.getChannelData(0);
+    for (var i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+    var fonte = c.createBufferSource(), filtro = c.createBiquadFilter(), g = c.createGain();
+    fonte.buffer = buf;
+    filtro.type = "bandpass"; filtro.frequency.value = freq || 1000;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol || 0.2, t + dur * 0.4);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    fonte.connect(filtro); filtro.connect(g); g.connect(c.destination);
+    fonte.start(t); fonte.stop(t + dur);
+  }
+
+  var sons = {
+    apito: function (c) { nota(c, 2600, 0, 0.18, "square", 0.05); nota(c, 2600, 0.24, 0.4, "square", 0.05); },
+    chute: function (c) { ruido(c, 0, 0.07, 0.4, 700); nota(c, 160, 0, 0.12, "sine", 0.4, 60); },
+    gol: function (c) {
+      [523, 659, 784, 1047].forEach(function (f, i) { nota(c, f, i * 0.09, 0.22, "triangle", 0.18); });
+    },
+    torcida: function (c) { ruido(c, 0, 0.9, 0.18, 1200); ruido(c, 0.05, 0.8, 0.1, 600); },
+    defesa: function (c) { nota(c, 220, 0, 0.15, "sine", 0.3, 90); },
+    erro: function (c) { nota(c, 440, 0, 0.16, "triangle", 0.12); nota(c, 370, 0.16, 0.24, "triangle", 0.12); },
+    clique: function (c) { nota(c, 880, 0, 0.05, "sine", 0.08); }
+  };
+
+  function tocar(nome) {
+    if (!ligado || !sons[nome]) return;
+    var c = contexto();
+    if (!c) return;
+    try { sons[nome](c); } catch (e) {}
+  }
+
+  // Liga um botão 🔇/🔊 (ele mesmo mostra o estado).
+  function botao(el) {
+    function pintar() {
+      el.textContent = ligado ? "🔊" : "🔇";
+      el.setAttribute("aria-label", ligado ? "Desligar o som" : "Ligar o som");
+    }
+    el.addEventListener("pointerdown", function (e) {
+      e.preventDefault(); e.stopPropagation();
+      ligado = !ligado;
+      if (ligado) { contexto(); tocar("clique"); }
+      pintar();
+    });
+    pintar();
+  }
+
+  return {
+    tocar: tocar,
+    botao: botao,
+    ligar: function (sim) { ligado = !!sim; if (ligado) contexto(); },
+    ligado: function () { return ligado; }
+  };
+})();
+/* SOM-FIM */
 // Configuração enviada pelo notebook (ou valores padrão se abrir sozinho)
 var CONFIG = window.CONFIG || {modo: "campeao", dica: "", id: "", nome: "penalti"};
 var DURACAO = 45;
@@ -110,6 +197,7 @@ function chutar(z) {
   if (!jogando || travado) return;
   travado = true;
   chutes++;
+  Som.tocar("chute");
   // A bola vai até o meio da zona escolhida
   var campo = $("campo").getBoundingClientRect();
   var alvo = document.querySelector('.zona[data-z="' + z + '"]').getBoundingClientRect();
@@ -126,7 +214,9 @@ function chutar(z) {
       gols++;
       $("placar").textContent = gols;
       $("aviso").innerHTML = sortear(frasesGol) + " 🎉";
+      Som.tocar("gol");
     } else {
+      Som.tocar("defesa");
       $("aviso").innerHTML = "O goleiro pegou! 🧤<small>" + sortear(frasesDefesa) + "</small>";
     }
   }, 420);
@@ -140,6 +230,7 @@ function chutar(z) {
 }
 
 function comecar() {
+  Som.tocar("apito");
   gols = 0; chutes = 0; travado = false; jogando = true;
   $("placar").textContent = "0";
   $("aviso").innerHTML = "";
@@ -156,6 +247,7 @@ function comecar() {
 }
 
 function terminar() {
+  Som.tocar("apito");
   clearInterval(relogio);
   jogando = false;
   // Aura de 0 a 50: 3 pontos por gol, no máximo 50
@@ -178,6 +270,9 @@ for (var i = 0; i < zonas.length; i++) {
 }
 $("jogar").addEventListener("pointerdown", function (e) { e.preventDefault(); comecar(); });
 $("denovo").addEventListener("pointerdown", function (e) { e.preventDefault(); if (!this.disabled) comecar(); });
+// Som: começa mudo; o botão 🔇/🔊 liga e desliga.
+Som.ligar(CONFIG.som);
+Som.botao($("som"));
 </script>
 </body>
 </html>

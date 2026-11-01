@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 import uuid
 
-from . import config
+from . import config, som
 from .tela import escapar
 
 # tipo "campeao": recompensa que fica no vestiário; "treino": aparece depois de um erro.
@@ -31,7 +31,7 @@ def html_jogo(nome: str, modo: str = "campeao", dica: str = "") -> str:
     with open(config.PASTA_JOGOS / f"{nome}.html", encoding="utf-8") as arquivo:
         pagina = arquivo.read()
     ident = uuid.uuid4().hex[:8]
-    configuracao = {"modo": modo, "dica": dica, "id": ident, "nome": nome}
+    configuracao = {"modo": modo, "dica": dica, "id": ident, "nome": nome, "som": som.ligado()}
     script = f"<script>window.CONFIG = {json.dumps(configuracao, ensure_ascii=False)};</script>"
     pagina = pagina.replace("</head>", script + "</head>", 1)
     # O iframe recebe as mensagens do jogo e repassa a aura para o Python (só no Colab).

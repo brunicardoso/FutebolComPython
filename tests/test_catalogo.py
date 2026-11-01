@@ -20,9 +20,10 @@ def test_notebooks_prontos_existem_e_seguem_o_modelo():
         assert primeira.metadata.get("cellView") == "form"
         assert f'REPO = "{config.REPO_URL}"' in primeira.source
         assert f'notebook="{info["id"]}"' in primeira.source
+        assert "#@markdown" in primeira.source and "Run anyway" in primeira.source  # aviso do Colab
         assert all(not c.get("outputs") for c in nb.cells if c.cell_type == "code")
         textos = "\n".join(c.source for c in nb.cells)
-        for parte in ("Para os pais", "Aquecimento", "Desafio do Técnico", "🔑 Respostas", "terminar()"):
+        for parte in ("Para os pais e professores", "Aquecimento", "Desafio do Técnico", "🔑 Respostas", "terminar()"):
             assert parte in textos, (info["id"], parte)
         assert info["id"] in missoes.MISSOES
         assert info["jogo"] in __import__("vestiario").jogos.CATALOGO
