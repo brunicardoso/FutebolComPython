@@ -56,7 +56,7 @@ body{background:#4a148c;font-family:system-ui,"Segoe UI",Roboto,Arial,sans-serif
 <script>
 /* SOM-INICIO: copiado de midia/som.js por scripts/sincronizar_som.py (edite lá, não aqui) */
 // Sons sintetizados na hora com a Web Audio do navegador: nenhum arquivo, nenhuma rede.
-// Começa sempre MUDO. Cada som dura menos de 1 segundo.
+// Começa ligado (quem decide é quem usa). Cada som dura menos de 1 segundo.
 var Som = (function () {
   var ctx = null, ligado = false;
 
@@ -293,8 +293,8 @@ function terminar() {
 
 $("jogar").addEventListener("pointerdown", function (e) { e.preventDefault(); comecar(); });
 $("denovo").addEventListener("pointerdown", function (e) { e.preventDefault(); if (!this.disabled) comecar(); });
-// Som: começa mudo; o botão 🔇/🔊 liga e desliga.
-Som.ligar(CONFIG.som);
+// Som: começa ligado; o botão 🔊/🔇 desliga e liga.
+Som.ligar(CONFIG.som !== false);
 Som.botao($("som"));
 </script>
 </body>

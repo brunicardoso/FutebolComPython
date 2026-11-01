@@ -33,7 +33,7 @@ def preparar(nb) -> None:
         if "Preparar o vestiário" in celula.source:
             iniciar = next(l for l in celula.source.splitlines() if l.startswith("iniciar("))
             celula.source = (f"import sys\nsys.path.insert(0, {str(RAIZ)!r})\n"
-                             f"from vestiario import *\n{iniciar}")
+                             f"from vestiario import *\ncodigo_secreto = \"\"\n{iniciar}")
             celula.metadata["bootstrap"] = True
         elif "missao" in celula.metadata.get("tags", []):
             celula.source = celula.metadata["futebol"]["solucao"]

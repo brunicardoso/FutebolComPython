@@ -69,3 +69,40 @@ def test_chute_na_trave(sessao, tela):
     assert sessao._estado.total == 100
     sessao.chute(95, 100)
     assert sessao._estado.total == 100  # a mesma pergunta só paga uma vez
+
+
+EMPATES = {"m2": ["Michael Olise", "Bruno Fernandes"],
+           "desafio1": ["Erling Haaland", "Lamine Yamal"],
+           "desafio2": ["Endrick", "Rayan"]}
+
+
+def test_empates_dos_dados_aceitam_todos_os_nomes():
+    for missao, nomes in EMPATES.items():
+        m = missoes.buscar("02_olheiro", missao)
+        assert sorted(m.esperado()) == sorted(nomes), missao
+        for nome in nomes:
+            variantes = [nome, nome.upper(), f" {nome}. ", f'"{nome}"', nome + "​",
+                         nome.replace(" ", " "), f"93 {nome}", nome.split()[-1]]
+            for v in variantes:
+                assert comparar(v, m), (missao, v)
+
+
+def test_nomes_com_errinho_iniciais_e_ordem():
+    m = missoes.buscar("02_olheiro", "m2")
+    for v in ["Bruno Fernandez", "B. Fernandes", "Fernandes, Bruno", "Olisse"]:
+        assert comparar(v, m), v
+    for v in ["Dimarco", "Bruno Silva", "Fernando", "Messi"]:
+        assert not comparar(v, m), v
+    assert missoes.escrita_certa("Bruno Fernandez", m) == "Bruno Fernandes"
+    assert missoes.escrita_certa("Bruno Fernandes", m) is None
+
+
+def test_empate_aparece_na_tela(tela, monkeypatch):
+    import vestiario
+    from vestiario.aura import EstadoAura
+    monkeypatch.setattr(vestiario, "_estado", EstadoAura())
+    monkeypatch.setattr(vestiario.progresso, "ler_drive", lambda: None)
+    vestiario.iniciar(1, "02_olheiro")
+    tela.clear()
+    assert vestiario.checar("Bruno Fernandes", "m2")
+    assert any("Empate!" in t and "Michael Olise" in t for t in tela)

@@ -6,9 +6,11 @@ Respostas que dependem dos dados são calculadas a partir do snapshot
 
 from __future__ import annotations
 
+import difflib
 import math
 import numbers
 import random
+import re
 import unicodedata
 from dataclasses import dataclass
 from typing import Any, Callable
@@ -40,11 +42,46 @@ class Missao:
 
 # ---------------------------------------------------------------- comparação
 
+_INVISIVEIS = dict.fromkeys(map(ord, "\u200b\u200c\u200d\u2060\ufeff\u00ad"))
+
+
 def normalizar(texto: str) -> str:
-    """Tira acentos, maiúsculas e espaços sobrando: ' Mbappé ' vira 'mbappe'."""
-    sem_acento = unicodedata.normalize("NFKD", str(texto))
+    """Tira acentos, maiúsculas e espaços sobrando: ' Mbappé ' vira 'mbappe'.
+
+    Também some com caracteres invisíveis (que às vezes vêm junto ao copiar da tabela)."""
+    sem_acento = unicodedata.normalize("NFKD", str(texto).translate(_INVISIVEIS))
     sem_acento = "".join(c for c in sem_acento if not unicodedata.combining(c))
     return " ".join(sem_acento.lower().replace("ı", "i").split())
+
+
+def _palavras(texto: str) -> list[str]:
+    """Só as palavras de um nome: sem pontuação, aspas nem números soltos
+    ('93 Bruno Fernandes.' vira ['bruno', 'fernandes'])."""
+    limpo = re.sub(r"[^\w\s-]", " ", normalizar(texto)).replace("-", " ").replace("_", " ")
+    return [p for p in limpo.split() if not p.isdigit()]
+
+
+def _parecido(a: str, b: str, minimo: float) -> bool:
+    return difflib.SequenceMatcher(None, a, b).ratio() >= minimo
+
+
+def nomes_iguais(resposta: str, esperado: str, parcial: bool = False) -> bool:
+    """Compara nomes com paciência: ignora acentos, pontuação, ordem das palavras,
+    iniciais ('B. Fernandes') e um errinho de digitação ('Fernandez')."""
+    r, e = _palavras(resposta), _palavras(esperado)
+    if not r or not e:
+        return normalizar(resposta) == normalizar(esperado)
+    if r == e or sorted(r) == sorted(e):
+        return True
+    junto_r, junto_e = " ".join(r), " ".join(e)
+    if len(junto_e) >= 6 and _parecido(junto_r, junto_e, 0.88):
+        return True
+    if len(r) == len(e) and all(a == b or (len(a) == 1 and b.startswith(a)) for a, b in zip(r, e)):
+        return True  # iniciais: "b fernandes"
+    if parcial and len(r) == 1 and len(r[0]) >= 3:
+        palavra = r[0]
+        return any(palavra == p or (len(p) >= 5 and _parecido(palavra, p, 0.85)) for p in e)
+    return False
 
 
 def _como_numero(valor):
@@ -70,10 +107,7 @@ def _igual(resposta, esperado, tolerancia: float, parcial: bool) -> bool:
     if isinstance(esperado, str):
         if not isinstance(resposta, str):
             return False
-        r, e = normalizar(resposta), normalizar(esperado)
-        if r == e:
-            return True
-        return parcial and len(r) >= 3 and r in e.split()
+        return nomes_iguais(resposta, esperado, parcial)
     if isinstance(esperado, (list, tuple)):
         try:
             return (len(resposta) == len(esperado) and
@@ -89,6 +123,29 @@ def comparar(resposta, missao: Missao) -> bool:
     return any(_igual(resposta, e, missao.tolerancia, missao.parcial) for e in opcoes)
 
 
+def escrita_certa(resposta, missao: Missao) -> str | None:
+    """Se o nome foi aceito com um errinho, devolve o nome escrito certinho."""
+    esperado = missao.esperado()
+    opcoes = esperado if isinstance(esperado, Qualquer) else (esperado,)
+    if not isinstance(resposta, str) or not all(isinstance(e, str) for e in opcoes):
+        return None
+    for e in opcoes:
+        if nomes_iguais(resposta, e, missao.parcial):
+            r, certas = _palavras(resposta), _palavras(e)
+            if r == certas or (missao.parcial and len(r) == 1 and r[0] in certas):
+                return None
+            return e
+    return None
+
+
+def empatados(missao: Missao) -> list[str]:
+    """Os nomes empatados (mais de um nome vale), ou lista vazia."""
+    esperado = missao.esperado()
+    if isinstance(esperado, Qualquer) and len(esperado) > 1 and all(isinstance(e, str) for e in esperado):
+        return list(esperado)
+    return []
+
+
 def texto_resposta(missao: Missao) -> str:
     """A resposta certa escrita para mostrar depois de 3 tentativas."""
     esperado = missao.esperado()
@@ -101,8 +158,10 @@ def texto_resposta(missao: Missao) -> str:
 
 def _nomes_do_maximo(tabela, coluna: str) -> Qualquer:
     """Todos os nomes empatados no valor mais alto de uma coluna."""
-    maior = tabela[coluna].max()
-    return Qualquer(tabela.loc[tabela[coluna] == maior, "nome"].tolist())
+    valores = tabela[coluna].astype(float)
+    maior = valores.max()
+    empatados = tabela.loc[(valores - maior).abs() <= 1e-9, "nome"]
+    return Qualquer(str(n) for n in empatados)
 
 
 def _joias(tabela):

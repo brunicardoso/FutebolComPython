@@ -21,6 +21,9 @@ def test_notebooks_prontos_existem_e_seguem_o_modelo():
         assert f'REPO = "{config.REPO_URL}"' in primeira.source
         assert f'notebook="{info["id"]}"' in primeira.source
         assert "#@markdown" in primeira.source and "Run anyway" in primeira.source  # aviso do Colab
+        assert 'codigo_secreto = ""  #@param {type:"string"}' in primeira.source
+        assert "codigo=codigo_secreto)" in primeira.source
+        assert nb.metadata["colab"].get("generative_ai_disabled") is True  # IA do Colab escondida
         assert all(not c.get("outputs") for c in nb.cells if c.cell_type == "code")
         textos = "\n".join(c.source for c in nb.cells)
         for parte in ("Para os pais e professores", "Aquecimento", "Desafio do Técnico", "🔑 Respostas", "terminar()"):

@@ -7,7 +7,7 @@
     dica(missao="m1")              mostra a dica de uma missão
     curiosidades(tabela, n=3)      curiosidades dos jogadores da tabela
     vestiario()                    seus jogos e seu nível de aura
-    som(True) / som(False)         liga ou desliga o som (começa mudo)
+    som(True) / som(False)         liga ou desliga o som (começa ligado; o ícone 🔊 também)
     jogar(nome)                    abre um jogo desbloqueado
     terminar()                     fecha o notebook e libera o jogo do vestiário
     salvar_progresso() / carregar_progresso(codigo)
@@ -105,27 +105,39 @@ def _aura_do_jogo(nome: str, pontos) -> None:
 
 # ---------------------------------------------------------------- funções do aluno
 
-def iniciar(nivel: int = 1, notebook: str = "") -> None:
-    """Prepara o vestiário: progresso, dados e boas-vindas."""
+def iniciar(nivel: int = 1, notebook: str = "", codigo: str = "") -> None:
+    """Prepara o vestiário: progresso, dados e boas-vindas.
+
+    `codigo` vem do campo "código secreto" da primeira célula (pode ficar vazio)."""
     _sessao.update(nivel=nivel, notebook=notebook, inicio=time.monotonic(), intervalo=False)
     do_drive = progresso.ler_drive()
     if do_drive and do_drive.total > _estado.total:
         _carregar_estado(do_drive)
+    codigo = str(codigo or "").strip()
+    do_codigo = progresso.ler_codigo(codigo) if codigo else None
+    if do_codigo:
+        _carregar_estado(do_codigo)
     _jogos.registrar_callback(_aura_do_jogo)
+    _som.registrar_callback()
     erros.instalar(notebook)
     info = _info_notebook(notebook)
     if info and info.get("usa_dados"):
         carregar_jogadores()
     titulo = f"{info['icone']} {escapar(info['titulo'])}" if info else "Futebol com Python"
     reacoes.mostrar("boas_vindas", extra=f'<div style="margin-top:4px">{titulo}</div>')
-    exibir(_barra_aura())
-    if not _som.ligado():
-        exibir(caixa('🔇 O som começa desligado. Para ligar, escreva <code>som()</code>.',
-                     cor="#37474f", fundo="#eceff1", tamanho="1em"))
-    if _estado.total == 0:
-        exibir(caixa('Já jogou antes? Cole seu código secreto assim: '
-                     '<code>carregar_progresso("AURA-...")</code>', cor="#37474f", fundo="#eceff1",
+    if do_codigo:
+        exibir(caixa("🔐 Código secreto aceito! Sua aura e seus jogos voltaram.", tamanho="1em"))
+    elif codigo:
+        exibir(caixa("Hmm, esse código secreto não bateu. Confira letra por letra (o 0 é zero, "
+                     "o O é letra), corrija no campo da primeira célula e aperte o play de novo. "
+                     "Enquanto isso, dá para jogar normalmente.", cor="#37474f", fundo="#eceff1",
                      tamanho="1em"))
+    exibir(_barra_aura())
+    exibir(caixa("Som: toque no ícone para desligar ou ligar. " + _som.botao(),
+                 cor="#37474f", fundo="#eceff1", tamanho="1em"))
+    if _estado.total == 0 and not codigo:
+        exibir(caixa("Já jogou antes? Cole seu código secreto no campo 🔐 da primeira célula "
+                     "e aperte o play de novo.", cor="#37474f", fundo="#eceff1", tamanho="1em"))
 
 
 def checar(resposta, missao: str = "m1") -> bool:
@@ -165,6 +177,7 @@ def checar(resposta, missao: str = "m1") -> bool:
             exibir(caixa(f"🏆 Você subiu de nível: <b>{resultado.subiu_para}</b>!",
                          cor="#f57f17", fundo="#fffde7", tamanho="1.3em"))
             exibir(_barra_aura())
+        _mostrar_empate_e_escrita(resposta, m)
         _desbloquear(m.desbloqueia)
         _checar_67(_estado.total, f"total:{_estado.total}")
         return True
@@ -183,6 +196,16 @@ def checar(resposta, missao: str = "m1") -> bool:
     if erros == 1:  # o treino rápido aparece só no primeiro erro de cada missão
         exibir(_jogos.html_jogo("treino_rapido", modo="treino", dica=m.dica))
     return False
+
+
+def _mostrar_empate_e_escrita(resposta, m: missoes.Missao) -> None:
+    certo = missoes.escrita_certa(resposta, m)
+    if certo:
+        exibir(caixa(f"✍️ Valeu! O nome escrito certinho é <b>{escapar(certo)}</b>.", tamanho="1em"))
+    nomes = missoes.empatados(m)
+    if len(nomes) > 1:
+        lista = " e ".join(escapar(n) for n in nomes) if len(nomes) == 2 else ", ".join(escapar(n) for n in nomes)
+        exibir(caixa(f"🤝 <b>Empate!</b> {lista} têm o mesmo número. Todos valem!", tamanho="1em"))
 
 
 def _numero_perto(resposta, m: missoes.Missao) -> bool:
@@ -227,7 +250,7 @@ def som(ligado: bool = True) -> None:
     """Liga (som()) ou desliga (som(False)) o som das reações e dos jogos."""
     _som.ligar(ligado)
     if ligado:
-        exibir(caixa("🔊 Som ligado! Para desligar, escreva <code>som(False)</code>.",
+        exibir(caixa("🔊 Som ligado! Para desligar, toque no ícone ou escreva <code>som(False)</code>.",
                      tamanho="1em") + _som.html_som("sigma"))
     else:
         exibir(caixa("🔇 Som desligado. Para ligar de novo, escreva <code>som()</code>.",
@@ -305,8 +328,8 @@ def salvar_progresso(drive: bool = False) -> str:
     """Mostra o seu código secreto. Com drive=True, também salva no Google Drive."""
     codigo = progresso.gerar_codigo(_estado)
     exibir(caixa(f"🔐 Seu código secreto: <b style=\"font-size:1.3em;letter-spacing:1px\">"
-                 f"{codigo}</b><br>Anote num papel! No próximo notebook, use "
-                 f"<code>carregar_progresso(\"{codigo}\")</code>.", cor="#4a148c", fundo="#f3e5f5"))
+                 f"{codigo}</b><br>Anote num papel! No próximo notebook, cole o código no campo "
+                 f"🔐 <b>código secreto</b> da primeira célula.", cor="#4a148c", fundo="#f3e5f5"))
     if drive:
         ok = progresso.salvar_drive(_estado)
         exibir(caixa("☁️ Salvo no Google Drive!" if ok else

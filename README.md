@@ -27,7 +27,7 @@ O jeito mais fácil é o site do projeto, com todos os notebooks, explicações 
 
 **No celular:** funciona no navegador (Chrome ou Safari). Toque numa célula para digitar e no ▶️ para rodar. Uma tela maior é mais confortável.
 
-**Progresso:** o Colab esquece tudo quando a sessão acaba. No fim de cada notebook aparece um **código secreto**, como `AURA-1350-J3N5-7F2`. Anote num papel. No próximo notebook, a criança escreve `carregar_progresso("AURA-…")`. Também dá para salvar no Google Drive com `salvar_progresso(drive=True)`.
+**Progresso:** o Colab esquece tudo quando a sessão acaba. No fim de cada notebook aparece um **código secreto**, como `AURA-1350-J3N5-7F2`. Anote num papel. No próximo notebook, a criança cola o código no campo 🔐 **código secreto** da primeira célula antes de apertar o play (`carregar_progresso("AURA-…")` também funciona). Também dá para salvar no Google Drive com `salvar_progresso(drive=True)`.
 
 **Ritmo:** cada missão leva de 3 a 5 minutos e cada notebook de 15 a 25. Depois de uns 20 minutos, aparece a sugestão de um **intervalo**.
 
@@ -35,7 +35,9 @@ O jeito mais fácil é o site do projeto, com todos os notebooks, explicações 
 
 **Reações (GIFs):** as reações usam os GIFs escolhidos pelos pais, guardados em `midia/gifs/` (encolhidos para no máximo 300 pixels e menos de 2 MB cada). Para trocar, coloque o GIF original na pasta `gifs/` (ela não vai para o GitHub), ajuste `scripts/comprimir_gifs.py` e rode `pixi run comprimir-gifs`. Também dá para usar um link do GIPHY ou do Tenor no campo `"url"` de `midia/reacoes.json`. Sem imagem, aparece um emoji.
 
-**Som:** os sons (apito, chute, gol, torcida) são criados na hora pelo navegador, sem arquivos de áudio. Tudo começa **mudo**. No notebook, `som()` liga e `som(False)` desliga; nos jogos, toque no botão 🔇/🔊.
+**Som:** os sons (apito, chute, gol, torcida) são criados na hora pelo navegador, sem arquivos de áudio. O som começa **ligado**. Para desligar, toque no ícone 🔊 (ele vira 🔇; toque de novo para ligar). Também dá para escrever `som(False)` e `som()`. O navegador às vezes só deixa tocar som depois do primeiro toque na tela.
+
+**IA do Colab:** os recursos de IA do Colab (Gemini) ficam escondidos nos notebooks. Para esconder em toda a sua conta: **Ferramentas → Configurações → Assistência de IA → Ocultar recursos de IA generativa**.
 
 **Erros:** se a criança apagar um pedaço do código sem querer, aparece uma caixa com uma dica e o **código original** da célula para copiar de volta. O erro técnico fica escondido em "ver erro técnico".
 

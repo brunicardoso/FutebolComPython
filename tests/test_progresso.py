@@ -22,3 +22,28 @@ def test_carregar_progresso(sessao):
     assert sessao.carregar_progresso(codigo)
     assert sessao._estado.total == 700 and "penalti" in sessao._estado.jogos
     assert not sessao.carregar_progresso("AURA-1-J0N0-000")
+
+
+def _novo(monkeypatch):
+    import vestiario
+    monkeypatch.setattr(vestiario, "_estado", EstadoAura())
+    monkeypatch.setattr(vestiario.progresso, "ler_drive", lambda: None)
+    return vestiario
+
+
+def test_campo_do_codigo_secreto_no_iniciar(tela, monkeypatch):
+    vestiario = _novo(monkeypatch)
+    antigo = EstadoAura(total=1350)
+    antigo.jogos.add("penalti")
+    vestiario.iniciar(1, "02_olheiro", codigo=gerar_codigo(antigo))
+    assert vestiario._estado.total == 1350 and "penalti" in vestiario._estado.jogos
+    assert any("Código secreto aceito" in t for t in tela)
+
+
+def test_campo_vazio_ou_errado_nao_quebra(tela, monkeypatch):
+    vestiario = _novo(monkeypatch)
+    vestiario.iniciar(1, "02_olheiro", codigo="")
+    assert vestiario._estado.total == 0
+    vestiario.iniciar(1, "02_olheiro", codigo="AURA-errado")
+    assert vestiario._estado.total == 0
+    assert any("não bateu" in t for t in tela)

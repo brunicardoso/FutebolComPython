@@ -1,6 +1,6 @@
 /* SOM-INICIO: copiado de midia/som.js por scripts/sincronizar_som.py (edite lá, não aqui) */
 // Sons sintetizados na hora com a Web Audio do navegador: nenhum arquivo, nenhuma rede.
-// Começa sempre MUDO. Cada som dura menos de 1 segundo.
+// Começa ligado (quem decide é quem usa). Cada som dura menos de 1 segundo.
 var Som = (function () {
   var ctx = null, ligado = false;
 

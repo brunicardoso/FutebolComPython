@@ -56,15 +56,16 @@ def test_arquivo_fora_de_midia_nao_abre():
     assert "<img" not in html
 
 
-def test_som_comeca_mudo_e_liga():
+def test_som_comeca_ligado_e_o_icone_desliga():
+    assert som.ligado()
+    html = som.html_som("sigma")
+    assert 'Som.tocar("gol")' in html and "🔊" in html and "invokeFunction" in html
     som.ligar(False)
-    assert som.html_som("sigma") == ""
-    som.ligar(True)
     try:
         html = som.html_som("sigma")
-        assert "Som.tocar(\"gol\")" in html and "🔊" in html
+        assert "🔇" in html and 'Som.tocar("gol")' not in html
     finally:
-        som.ligar(False)
+        som.ligar(True)
 
 
 def test_categoria_com_gif_sempre_mostra_o_gif():
