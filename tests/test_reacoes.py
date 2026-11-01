@@ -65,3 +65,13 @@ def test_som_comeca_mudo_e_liga():
         assert "Som.tocar(\"gol\")" in html and "🔊" in html
     finally:
         som.ligar(False)
+
+
+def test_categoria_com_gif_sempre_mostra_o_gif():
+    import random
+    sorteio = random.Random(1)
+    for categoria, entradas in reacoes.carregar().items():
+        tem_gif = any(e.get("arquivo") or e.get("url") for e in entradas)
+        for _ in range(20):
+            escolhida = reacoes.escolher(categoria, sorteio)
+            assert bool(escolhida.get("arquivo") or escolhida.get("url")) == tem_gif, categoria
