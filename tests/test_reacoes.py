@@ -38,7 +38,7 @@ def test_arquivos_de_gif_existem_e_sao_pequenos():
             if entrada.get("arquivo"):
                 caminho = config.PASTA_MIDIA / entrada["arquivo"]
                 assert caminho.is_file(), entrada["arquivo"]
-                assert caminho.stat().st_size < 2 * 1024 * 1024, entrada["arquivo"]
+                assert caminho.stat().st_size < 1_300_000, entrada["arquivo"]
 
 
 def test_gif_local_vira_data_uri():

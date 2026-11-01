@@ -2,17 +2,29 @@
   "_leia_me": "Cada reação pode ter \"arquivo\" (um GIF escolhido pelos pais, em midia/gifs/, já encolhido por scripts/comprimir_gifs.py) ou \"url\" (link do GIPHY ou Tenor conferido por um adulto). Sem nenhum dos dois, aparece o texto reserva. Nunca invente links: deixe \"url\": null.",
   "boas_vindas": [
     {"arquivo": "gifs/haaland_remando.gif", "url": null, "fallback": "🚣⚽", "texto": "Remando rumo ao gol! Bem-vindo, craque!"},
+    {"arquivo": "gifs/messi_contando.gif", "url": null, "fallback": "🔢⚽", "texto": "Bora contar? Hoje tem matemática com futebol! 🔢⚽"},
+    {"arquivo": "gifs/neymar_ouro_rio2016.gif", "url": null, "fallback": "👋⚽", "texto": "Bem-vindo ao vestiário, craque! ⚽"},
     {"url": null, "fallback": "⚽👋⚽", "texto": "Bem-vindo ao vestiário, craque!"},
     {"url": null, "fallback": "🏟️✨🏟️", "texto": "O estádio está lotado esperando você!"},
     {"url": null, "fallback": "🧤⚽👟", "texto": "Chuteiras amarradas? Vamos jogar!"}
   ],
   "sigma": [
+    {"arquivo": "gifs/neymar_silencio.gif", "url": null, "fallback": "🤫🗿", "texto": "Shhh... resposta sigma. 🤫🗿"},
+    {"arquivo": "gifs/mbappe_bracos_cruzados.gif", "url": null, "fallback": "🙅‍♂️🗿", "texto": "Braços cruzados: resposta sigma. 🗿"},
+    {"arquivo": "gifs/mbappe_desenho_oculos.gif", "url": null, "fallback": "😎🗿", "texto": "Óculos escuros ativados: modo sigma! 😎"},
+    {"arquivo": "gifs/messi_filtro_sigma.gif", "url": null, "fallback": "🗿⚽", "texto": "Cara de sigma ativada! 🗿"},
     {"url": null, "fallback": "🗿", "texto": "Resposta sigma. 🗿"},
     {"url": null, "fallback": "🗿🗿🗿", "texto": "Nem piscou. Sigma total."},
     {"url": null, "fallback": "😎⚽", "texto": "Frieza de batedor de pênalti."}
   ],
   "aura": [
     {"arquivo": "gifs/aura.gif", "url": null, "fallback": "✨✨✨", "texto": "Aura no máximo! ✨"},
+    {"arquivo": "gifs/cr7_siuuu_legenda.gif", "url": null, "fallback": "✨⚽✨", "texto": "SIUUU! Aura no máximo! ✨"},
+    {"arquivo": "gifs/messi_punho.gif", "url": null, "fallback": "✊✨", "texto": "Resposta de campeão! ✊"},
+    {"arquivo": "gifs/haaland_comemora_city.gif", "url": null, "fallback": "✨⚽", "texto": "Farmando aura igual ao Haaland! ✨"},
+    {"arquivo": "gifs/degea_defesa.gif", "url": null, "fallback": "🧤✨", "texto": "Defesa de goleiro craque! 🧤"},
+    {"arquivo": "gifs/goleiro_bayern_treino.gif", "url": null, "fallback": "🧤✨", "texto": "Voou igual goleiro! 🧤"},
+    {"arquivo": "gifs/defesa_historica_1970.gif", "url": null, "fallback": "🧤🏆", "texto": "Defesa histórica! Isso é aura de lenda! 🧤"},
     {"url": null, "fallback": "✨✨✨", "texto": "Isso foi pura aura! ✨"},
     {"url": null, "fallback": "⚡⚽⚡", "texto": "Golaço de raciocínio!"},
     {"url": null, "fallback": "🌟🌟🌟", "texto": "Você está farmando aura!"},
@@ -20,28 +32,45 @@
   ],
   "yamal_danca": [
     {"arquivo": "gifs/lamine_yamal.gif", "url": null, "fallback": "💃⚽💃⚽💃", "texto": "Isso merece a dancinha do Lamine Yamal! 💃⚽"},
+    {"arquivo": "gifs/richarlison_pombo.gif", "url": null, "fallback": "🐦💃🐦", "texto": "Isso merece a dança do pombo! 🐦💃"},
+    {"arquivo": "gifs/neymar_willian_danca.gif", "url": null, "fallback": "💃⚽💃", "texto": "Isso merece uma dancinha! 💃⚽"},
     {"url": null, "fallback": "💃⚽💃⚽💃", "texto": "Isso merece a dancinha do Lamine Yamal! 💃⚽"},
     {"url": null, "fallback": "🕺⚽🕺", "texto": "Comemoração de final de campeonato!"}
   ],
   "fim_notebook": [
     {"arquivo": "gifs/vinicius_danca.gif", "url": null, "fallback": "🕺⚽🕺", "texto": "Notebook completo! Dancinha do Vini Jr.! 🕺"},
-    {"arquivo": "gifs/paqueta_danca.gif", "url": null, "fallback": "💃⚽💃", "texto": "Fim de jogo! Comemora igual o Paquetá! 💃"}
+    {"arquivo": "gifs/paqueta_danca.gif", "url": null, "fallback": "💃⚽💃", "texto": "Fim de jogo! Comemora igual o Paquetá! 💃"},
+    {"arquivo": "gifs/cr7_siuuu_pintura.gif", "url": null, "fallback": "🏔️🏆", "texto": "Notebook terminado! SIUUU lá no topo! 🏔️"},
+    {"arquivo": "gifs/messi_taca.gif", "url": null, "fallback": "🏆🏆🏆", "texto": "Notebook completo! Essa taça é sua! 🏆"}
   ],
   "seis_sete": [
+    {"arquivo": "gifs/aura_67_porcento.gif", "url": null, "fallback": "🤲 6️⃣7️⃣ 🤲", "texto": "SIX SEVEN! 67% de aura! 🤲"},
+    {"arquivo": "gifs/senhor_67.gif", "url": null, "fallback": "🤲 6️⃣7️⃣ 🤲", "texto": "SIX SEVEN! 🤲 67!"},
+    {"arquivo": "gifs/pintinho_67.gif", "url": null, "fallback": "🐥 6️⃣7️⃣", "texto": "SIX SEVEN! Até o pintinho achou o 67! 🐥"},
+    {"arquivo": "gifs/conde_67.gif", "url": null, "fallback": "🧛 6️⃣7️⃣", "texto": "SIX SEVEN! O Conde contou até 67! 🔢"},
     {"url": null, "fallback": "🤲 6️⃣7️⃣ 🤲", "texto": "SIX SEVEN! 🤲 67!"},
     {"url": null, "fallback": "6️⃣7️⃣🤲🤲", "texto": "Apareceu um 67! SIX SEVEN!"}
   ],
   "beta": [
+    {"arquivo": "gifs/neymar_escorrega.gif", "url": null, "fallback": "🔧⚽", "texto": "Modo beta 🔧: até o Neymar escorrega! Levanta e tenta de novo!"},
+    {"arquivo": "gifs/pavard_pensativo.gif", "url": null, "fallback": "🔧🤔", "texto": "Modo beta 🔧: até craque erra esse. Bora de novo!"},
+    {"arquivo": "gifs/var_arbitro.gif", "url": null, "fallback": "🔧📺", "texto": "Modo beta 🔧: o VAR está revendo... revise a conta e tente de novo! 📺"},
     {"url": null, "fallback": "🔧⚽", "texto": "Modo beta 🔧: versão de teste! Todo craque treina."},
     {"url": null, "fallback": "🛠️", "texto": "Modo beta 🔧: esse lance vai para o replay. Bora ajustar!"},
     {"url": null, "fallback": "🔁⚽", "texto": "Modo beta 🔧: até o melhor do mundo erra chute. Próxima entra!"}
   ],
   "quase": [
+    {"arquivo": "gifs/defesas_por_pouco.gif", "url": null, "fallback": "🧤🥅", "texto": "Na trave... quer dizer, o goleiro pegou! Foi por pouco! 🧤"},
+    {"arquivo": "gifs/napoli_travessao.gif", "url": null, "fallback": "🥅😮", "texto": "Na trave! 🥅 Faltou bem pouquinho!"},
+    {"arquivo": "gifs/dybala_por_pouco.gif", "url": null, "fallback": "🥅🤏", "texto": "Por pouco! Na trave! 🥅"},
     {"url": null, "fallback": "🥅", "texto": "Na trave! 🥅"},
     {"url": null, "fallback": "😮🥅", "texto": "Passou raspando a trave! Quase!"}
   ],
   "sequencia": [
     {"arquivo": "gifs/cristiano_ronaldo.gif", "url": null, "fallback": "🔥⚽🔥", "texto": "Sequência de craque! SIUUU! 🔥"},
+    {"arquivo": "gifs/cr7_siuuu_salto.gif", "url": null, "fallback": "🔥⚽🔥", "texto": "SIUUU! Sequência de craque! 🔥"},
+    {"arquivo": "gifs/haaland_comemora_champions.gif", "url": null, "fallback": "🔥🔥🔥", "texto": "🔥 Sequência de 3! Artilheiro!"},
+    {"arquivo": "gifs/lloris_defesa.gif", "url": null, "fallback": "🧤🔥", "texto": "Defesaça! Continue a sequência! 🧤🔥"},
     {"url": null, "fallback": "🔥🔥🔥", "texto": "Você está pegando fogo!"},
     {"url": null, "fallback": "🔥⚽🔥", "texto": "Ninguém para esse time!"}
   ]
